@@ -31,7 +31,7 @@ try {
   // Use connect method to connect to the server
   MongoClient.connect(url + '/' + dbName, function(err, client) {
     assert.equal(null, err);
-    console.log("Connected successfully to Mongo server");
+    console.log("Connected successfully to Mongo server: " + url + '/' + dbName);
 
           // msg should contain ids of test records to run calcs on
           consumer.consume(async function(msgContent, msg, conn, ch) {
@@ -101,7 +101,14 @@ try {
 
                       let retries = 0;
                       while (data.totalRowCount !== msgContent.ids.length && retries <= 10)  {
+                        // let one = await db.collection('test_usage').findOne({});
+
+                        // console.log('Found:' + one.id);
+
+
                         data.totalRowCount = await db.collection('test_usage').count({id:{$in:msgContent.ids}});
+                        console.log("Count: " + data.totalRowCount);
+
 
                         if (data.totalRowCount === 0) {
                           retries++;
@@ -110,6 +117,7 @@ try {
                             
                           } else {
                             console.log('********* Warn: ids not available (yet?), sleeping for 1 and retrying');
+				                    console.log('Found ' + data.totalRowCount + ' and needed ' + msgContent.ids.length);
                             sleep.sleep(1);
                           }
                         
