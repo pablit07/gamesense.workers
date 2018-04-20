@@ -1,12 +1,12 @@
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
-var consumer = require('./consumer');
-var publisher = require('./publisher');
+var consumer = require('../consumer');
+var publisher = require('../publisher');
 var moment = require('moment');
 var sleep = require('sleep');
 const uuid = require('uuid/v4');
-const mongo_connectionString = require('db').mongo_connectionString;
-const rmq_connectionString = require('env').rmq_connectionString;
+const mongo_connectionString = require('../db').mongo_connectionString;
+const rmq_connectionString = require('../env').rmq_connectionString;
 
 // calc single player scores
 

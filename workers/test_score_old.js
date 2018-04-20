@@ -1,9 +1,9 @@
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
-var consumer = require('./consumer');
+var consumer = require('../consumer');
 var moment = require('moment');
-const mongo_connectionString = require('db').mongo_connectionString;
-const rmq_connectionString = require('env').rmq_connectionString;
+const mongo_connectionString = require('../db').mongo_connectionString;
+const rmq_connectionString = require('../env').rmq_connectionString;
 
 
 
