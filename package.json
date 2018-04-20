@@ -9,6 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "amqplib":">=0.5.2"
+    "amqplib": ">=0.5.2",
+    "assert": "^1.4.1",
+    "moment": "^2.22.1",
+    "mongodb": "^3.0.7",
+    "sleep": "^5.1.1",
+    "uuid": "^3.2.1"
   }
 }
