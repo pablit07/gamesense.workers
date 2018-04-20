@@ -2,6 +2,8 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var consumer = require('./consumer');
 var moment = require('moment');
+const mongo_connectionString = require('db').mongo_connectionString;
+const rmq_connectionString = require('env').rmq_connectionString;
 
 
 
@@ -14,7 +16,7 @@ if (!process.argv.length) sleep.sleep(30);
 try {
 
     // Connection URL
-  const url = 'mongodb://ec2-18-233-188-98.compute-1.amazonaws.com';
+  const url = mongo_connectionString;
     // Database Name
   const dbName = 'prod';
 
@@ -84,7 +86,6 @@ try {
                         console.log('******** Error question does not exist for ' + data.question_id);
                       }
 
-                      console.info('HERE~~~~~~')
                       // db.collection.find({question_id:{$exists:true},time_answered:{$exists:false}}) 
                       // db.collection.find({id:{$exists:true},question_id:{$exists:false},time_answered:{$exists:false}})
 
@@ -100,7 +101,7 @@ try {
                   // conn.close();
                 }
 
-          }, q, 'amqp://admin:admin@localhost');
+          }, q, rmq_connectionString);
     });
 
 } catch (ex) {

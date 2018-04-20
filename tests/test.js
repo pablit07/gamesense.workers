@@ -1,4 +1,5 @@
-var consumer = require('./consumer');
+var consumer = require('../consumer');
+var Publisher = require('../publisher').Publisher;
 
 function test1(p, a) {
 	console.info(a);

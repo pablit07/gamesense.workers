@@ -5,6 +5,8 @@ var publisher = require('./publisher');
 var moment = require('moment');
 var sleep = require('sleep');
 const uuid = require('uuid/v4');
+const mongo_connectionString = require('db').mongo_connectionString;
+const rmq_connectionString = require('env').rmq_connectionString;
 
 // calc single player scores
 
@@ -18,7 +20,7 @@ if (!process.argv.length) sleep.sleep(30);
 try {
 
     // Connection URL
-  const url = 'mongodb://ec2-18-233-188-98.compute-1.amazonaws.com';
+  const url = mongo_connectionString;
     // Database Name
   const dbName = 'prod';
 
@@ -160,7 +162,7 @@ try {
                         db.collection(c).insertOne(data)
                         ch.ack(msg);
 
-                        publisher.publish({}, q_pub, 'amqp://admin:admin@localhost');
+                        publisher.publish({}, q_pub, rmq_connectionString);
                       }
 
 
@@ -171,7 +173,7 @@ try {
                   // conn.close();
                 }
 
-          }, q_sub, 'amqp://admin:admin@localhost');
+          }, q_sub, rmq_connectionString);
     });
 
 } catch (ex) {
