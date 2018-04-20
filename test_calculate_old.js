@@ -47,16 +47,25 @@ try {
                         id: uuid(),
 
                         occlusion_plus_5_type_score: 0,
+                        occlusion_plus_5_type_avg: 0,
                         occlusion_plus_2_type_score: 0,
+                        occlusion_plus_2_type_avg: 0,
                         occlusion_none_type_score: 0,
+                        occlusion_none_type_avg: 0,
 
                         occlusion_plus_5_location_score: 0,
+                        occlusion_plus_5_location_avg: 0,
                         occlusion_plus_2_location_score: 0,
+                        occlusion_plus_2_location_avg: 0,
                         occlusion_none_location_score: 0,
+                        occlusion_none_location_avg: 0,
 
                         occlusion_plus_5_completely_correct_score: 0,
+                        occlusion_plus_5_completely_correct_avg: 0,
                         occlusion_plus_2_completely_correct_score: 0,
+                        occlusion_plus_2_completely_correct_avg: 0,
                         occlusion_none_completely_correct_score: 0,
+                        occlusion_none_completely_correct_avg: 0,
 
                         total_type_score: 0,
                         total_location_score: 0,
@@ -83,7 +92,7 @@ try {
                           sum += s[propName];
                         });
                         if (!sum) return 0;
-                        return Math.round((parseFloat(sum) / scores.length) * 1000);
+                        return [Math.round((parseFloat(sum) / scores.length) * 1000), (parseFloat(sum) / scores.length)];
                       }
 
                       data.scoringAlgorithm = "AvgToPercent";
@@ -115,30 +124,51 @@ try {
                         
                         cursor = db.collection('test_usage').find(query)
                         rows = await cursor.toArray();
-                        data.occlusion_plus_2_location_score = (AvgToPercent(rows, 'location_score') );
-                        data.occlusion_plus_2_type_score = (AvgToPercent(rows, 'type_score') );
-                        data.occlusion_plus_2_completely_correct_score = (AvgToPercent(rows, 'completely_correct_score') );
-                        db.collection('test_usage').updateMany(query, {$set: {occlusion_plus_2_both_score: data.occlusion_plus_2_location_score, occlusion_plus_2_type_score:data.occlusion_plus_2_type_score, occlusion_plus_2_both_score:data.occlusion_plus_2_both_score}});
+                        [data.occlusion_plus_2_location_score, data.occlusion_plus_2_location_avg] = (AvgToPercent(rows, 'location_score') );
+                        [data.occlusion_plus_2_type_score, data.occlusion_plus_2_type_avg] = (AvgToPercent(rows, 'type_score') );
+                        [data.occlusion_plus_2_completely_correct_score, data.occlusion_plus_2_completely_correct_avg] = (AvgToPercent(rows, 'completely_correct_score') );
+                        db.collection('test_usage').updateMany(query, {$set: {
+                          occlusion_plus_2_location_score: data.occlusion_plus_2_location_score,
+                          occlusion_plus_2_location_avg: data.occlusion_plus_2_location_avg,
+                          occlusion_plus_2_type_score:data.occlusion_plus_2_type_score,
+                          occlusion_plus_2_type_avg:data.occlusion_plus_2_type_avg,
+                          occlusion_plus_2_completely_correct_score:data.occlusion_plus_2_completely_correct_score,
+                          occlusion_plus_2_completely_correct_avg:data.occlusion_plus_2_completely_correct_avg
+                        }});
 
 
                         query = {id:{$in:msgContent.ids},occlusion:'R+5'};
                         data.rowCount_plus_5 = await db.collection('test_usage').count(query);
                         cursor = db.collection('test_usage').find(query)
                         rows = await cursor.toArray();
-                        data.occlusion_plus_5_location_score = (AvgToPercent(rows, 'location_score') );
-                        data.occlusion_plus_5_type_score = (AvgToPercent(rows, 'type_score') );
-                        data.occlusion_plus_5_completely_correct_score = (AvgToPercent(rows, 'completely_correct_score') );
-                        db.collection('test_usage').updateMany(query, {$set: {occlusion_plus_5_location_score: data.occlusion_plus_5_location_score,occlusion_plus_5_type_score:data.occlusion_plus_5_type_score,occlusion_plus_5_completely_correct_score:data.occlusion_plus_5_completely_correct_score}});
+                        [data.occlusion_plus_5_location_score, occlusion_plus_5_location_avg] = (AvgToPercent(rows, 'location_score') );
+                        [data.occlusion_plus_5_type_score, data.occlusion_plus_5_type_avg] = (AvgToPercent(rows, 'type_score') );
+                        [data.occlusion_plus_5_completely_correct_score, data.occlusion_plus_5_completely_correct_avg] = (AvgToPercent(rows, 'completely_correct_score') );
+                        db.collection('test_usage').updateMany(query, {$set: {
+                          occlusion_plus_5_location_score: data.occlusion_plus_5_location_score,
+                          occlusion_plus_5_location_avg: data.occlusion_plus_5_location_avg,
+                          occlusion_plus_5_type_score:data.occlusion_plus_5_type_score,
+                          occlusion_plus_5_type_avg:data.occlusion_plus_5_type_avg,
+                          occlusion_plus_5_completely_correct_score:data.occlusion_plus_5_completely_correct_score,
+                          occlusion_plus_5_completely_correct_avg:data.occlusion_plus_5_completely_correct_avg
+                        }});
 
 
                         query = {id:{$in:msgContent.ids},occlusion:'None'};
                         data.rowCount_none = await db.collection('test_usage').count(query);
                         cursor = db.collection('test_usage').find(query)
                         rows = await cursor.toArray();
-                        data.occlusion_none_location_score = (AvgToPercent(rows, 'location_score') );
-                        data.occlusion_none_type_score = (AvgToPercent(rows, 'type_score') );
-                        data.occlusion_none_completely_correct_score = (AvgToPercent(rows, 'completely_correct_score') );
-                        db.collection('test_usage').updateMany(query, {$set: {occlusion_none_location_score: data.occlusion_none_location_score,occlusion_none_type_score:data.occlusion_none_type_score,occlusion_none_completely_correct_score:data.occlusion_none_completely_correct_score}});
+                        [data.occlusion_none_location_score, data.occlusion_none_location_avg] = (AvgToPercent(rows, 'location_score') );
+                        [data.occlusion_none_type_score, data.occlusion_none_type_avg] = (AvgToPercent(rows, 'type_score') );
+                        [data.occlusion_none_completely_correct_score, data.occlusion_none_completely_correct_avg] = (AvgToPercent(rows, 'completely_correct_score') );
+                        db.collection('test_usage').updateMany(query, {$set: {
+                          occlusion_none_location_score: data.occlusion_none_location_score,
+                          occlusion_none_location_avg: data.occlusion_none_location_avg,
+                          occlusion_none_type_score:data.occlusion_none_type_score,
+                          occlusion_none_type_avg:data.occlusion_none_type_avg,
+                          occlusion_none_completely_correct_score:data.occlusion_none_completely_correct_score,
+                          occlusion_none_completely_correct_avg:data.occlusion_none_completely_correct_avg
+                        }});
 
                         // total scores
 

@@ -10,6 +10,9 @@ const rmq_connectionString = require('env').rmq_connectionString;
 const q = 'test.score_old';
 const c = 'test_usage';
 
+const locations = {1:'Ball',2:'Strike'};
+const pitchtypes = {1:'Fastball',2:'Cutter',3:'Changeup',4:'Curveball',5:'Slider'};
+
 // process.argv
 if (!process.argv.length) sleep.sleep(30);
 
@@ -45,13 +48,16 @@ try {
 
                       // time
 
-                      if (data.time_answered) data.time_answered = moment(data.time_answered).format();
-                      if (data.time_video_started) {
-                        data.time_video_started = moment(data.time_video_started).format();
-                        data.time_video_started_formatted = moment(data.time_video_started).format('MMMM Do YYYY, h:mm:ss a');
-                      }
                       if (data.time_answered && data.time_video_started)
                         data.time_difference = (moment(data.time_answered) - moment(data.time_video_started));
+                      if (data.time_video_started) {
+                        data.time_video_started_formatted = moment(data.time_video_started).format('MMMM Do YYYY, h:mm:ss a');
+                        data.time_video_started = new Date(moment(data.time_video_started).format());
+                      }
+                      if (data.time_answered) {
+                        data.time_answered_formatted = moment(data.time_answered).format('MMMM Do YYYY, h:mm:ss a');
+                        data.time_answered = new Date(moment(data.time_answered).format());
+                      }
 
                       // player
 
@@ -75,13 +81,17 @@ try {
                         question.correct_response_location_id = question.response_uris[1].find((x) => { return x.name == question.correct_response_location_name }).id
                         data = Object.assign(question, data);
 
+                        data.response_name = pitchtypes[data.response_id];
+                        data.response_location_name = locations[data.response_location];
+                        data.pitch = data.occluded_video_file.replace('.mp4', '');
+
                         // correct / incorrect
 
                         data.type_score = (question.correct_response_id === data.response_id) ? 1 : 0;
                         data.location_score = (question.correct_response_location_id === data.response_location) ? 1 : 0;
                         data.completely_correct_score = (data.type_score && data.location_score) ? 1 : 0;
 
-                        data.player_batting_hand = data.batter_hand_value
+                        data.player_batting_hand = data.batter_hand_value;
                       } else {
                         console.log('******** Error question does not exist for ' + data.question_id);
                       }
