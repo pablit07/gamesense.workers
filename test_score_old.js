@@ -18,6 +18,10 @@ try {
     // Database Name
   const dbName = 'prod';
 
+  if (process.argv.length > 1 && process.argv[1] == 'test') {
+    dbName = 'test';
+  }
+
   // Use connect method to connect to the server
   MongoClient.connect(url + '/' + dbName, function(err, client) {
     assert.equal(null, err);
@@ -27,6 +31,7 @@ try {
           consumer.consume(async function(data, msg, conn, ch) {
              
                   try {
+
 
                       var db = client.db(dbName);
 
@@ -48,12 +53,14 @@ try {
 
                       // player
 
-                      if (data.player_id && /(\d+)\s+(\w+)\s+(\w+)/.test(data.player_id)) {
-                        let nameParts = /(\d+) (\w+) (\w+)/.exec(data.player_id);
-                        data.player_jersey_id = nameParts[1];
-                        data.player_first_name = nameParts[2];
-                        data.player_last_name = nameParts[3];
+                      if (data.player_id && /([^\s]+)\s+([^\s]+)\s+([^\s].*)/.test(data.player_id)) {
+                        let nameParts = /([^\s]+)\s+([^\s]+)\s+([^\s].*)/.exec(data.player_id);
+                        data.player_jersey_id = nameParts[1].trim();
+                        data.player_first_name = nameParts[2].trim();
+                        data.player_last_name = nameParts[3].trim();
                       }
+
+
 
                       // read question
 
@@ -62,8 +69,8 @@ try {
                         delete question._id
                         question.correct_response_name = question.response_id;
                         question.correct_response_location_name = question.response_location;
-                        question.correct_response_id = question.response_uris[0].find((x) => { return x.name = question.correct_response_name }).id
-                        question.correct_response_location_id = question.response_uris[1].find((x) => { return x.name = question.correct_response_location_name }).id
+                        question.correct_response_id = question.response_uris[0].find((x) => { return x.name == question.correct_response_name }).id
+                        question.correct_response_location_id = question.response_uris[1].find((x) => { return x.name == question.correct_response_location_name }).id
                         data = Object.assign(question, data);
 
                         // correct / incorrect
@@ -76,16 +83,19 @@ try {
                       } else {
                         console.log('******** Error question does not exist for ' + data.question_id);
                       }
+
+                      console.info('HERE~~~~~~')
                       // db.collection.find({question_id:{$exists:true},time_answered:{$exists:false}}) 
                       // db.collection.find({id:{$exists:true},question_id:{$exists:false},time_answered:{$exists:false}})
 
                         
               //       
-                        console.log(` [x] Wrote ${JSON.stringify(data)} to ${dbName + '' + c}`)
+                        console.log(` [x] Wrote ${JSON.stringify(data)} to ${dbName + '.' + c}`)
                         db.collection(c).insertOne(data)
                         ch.ack(msg);
                 } catch (ex) {
-                  console.log("Error: " + ex);
+                  console.log("Error: " + (ex.stack ? ex : ""));
+                  console.error(ex.stack || ex);
                   // client.close();
                   // conn.close();
                 }
