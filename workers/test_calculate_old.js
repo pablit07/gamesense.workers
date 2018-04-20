@@ -91,7 +91,7 @@ try {
                         scores.forEach((s) => {
                           sum += s[propName];
                         });
-                        if (!sum) return 0;
+                        if (!sum) return [0,0];
                         return [Math.round((parseFloat(sum) / scores.length) * 1000), (parseFloat(sum) / scores.length)];
                       }
 
