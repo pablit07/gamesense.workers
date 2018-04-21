@@ -36,7 +36,7 @@ if (!process.argv.length) sleep.sleep(30);
 
         var ws = xlsx.utils.json_to_sheet(responses);
 
-        xlsx.utils.sheet_add_aoa(ws, [['','','','','','','','','','','',responses[0].occlusion_none_type_avg,responses[0].occlusion_none_location_avg,responses[0].occlusion_none_completely_correct_avg]], {});
+        // xlsx.utils.sheet_add_aoa(ws, [['','','','','','','','','','','',responses[0].occlusion_none_type_avg,responses[0].occlusion_none_location_avg,responses[0].occlusion_none_completely_correct_avg]], {});
 
         xlsx.utils.book_append_sheet(wb, ws, 'Responses');
 
