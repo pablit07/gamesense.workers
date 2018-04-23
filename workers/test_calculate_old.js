@@ -142,7 +142,7 @@ try {
                         data.rowCount_plus_5 = await db.collection('test_usage').count(query);
                         cursor = db.collection('test_usage').find(query)
                         rows = await cursor.toArray();
-                        [data.occlusion_plus_5_location_score, occlusion_plus_5_location_avg] = (AvgToPercent(rows, 'location_score') );
+                        [data.occlusion_plus_5_location_score, data.occlusion_plus_5_location_avg] = (AvgToPercent(rows, 'location_score') );
                         [data.occlusion_plus_5_type_score, data.occlusion_plus_5_type_avg] = (AvgToPercent(rows, 'type_score') );
                         [data.occlusion_plus_5_completely_correct_score, data.occlusion_plus_5_completely_correct_avg] = (AvgToPercent(rows, 'completely_correct_score') );
 
