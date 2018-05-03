@@ -28,13 +28,15 @@ if (!process.argv.length) sleep.sleep(30);
 
 		consumer.consume(async (data, msg, conn, ch) => {
 
-			if (data.report_viewer) {
+			if (data.filters && data.filters.report_viewer) {
 
 				let cursor = db.collection('test_reports').find({});
 				cursor.project({id_submission: 1});
 				let id_submissions = await cursor.toArray();
 
-				publisher.publishDurable({id_submissions:id_submissions}, 'test.notified', rmq_connectionString);
+				id_submissions = id_submissions.filter(s => s.id_submission != "");
+
+				publisher.publishDurable({id_submissions:id_submissions.map((s) => s.id_submission), for:'report_viewer'}, 'test.notified', rmq_connectionString);
 			}
 
 			ch.ack(msg);
