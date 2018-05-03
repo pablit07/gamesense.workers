@@ -7,7 +7,9 @@ const amqp = require('amqplib/callback_api');
 // object with two methods
 //		@method publish
 //		@method close
-function MakePublisher(func, q, connectionString) {
+function MakePublisher(func, q, connectionString, isDurable) {
+
+	var isDurable = isDurable || false;
 
   	return function() {
 
@@ -33,7 +35,7 @@ function MakePublisher(func, q, connectionString) {
     					return
     				}
 
-				    ch.assertQueue(q, {durable: false});
+				    ch.assertQueue(q, {durable: isDurable});
 				    let _closePromise = new Promise((resolve, reject) => {
 				    	ch.sendToQueue(q, new Buffer(JSON.stringify(message)), {}, (err, ok) => { resolve() });
 				    });				    
@@ -64,5 +66,13 @@ function publish(value, q, connectionString) {
         }, q, connectionString))();
 }
 
+function publishDurable(value, q, connectionString) {
+	(MakePublisher((publisher) => {
+          publisher.publish(value);
+          publisher.close();
+        }, q, connectionString, true))();
+}
+
 module.exports.MakePublisher = MakePublisher;
 module.exports.publish = publish;
+module.exports.publishDurable = publishDurable;
