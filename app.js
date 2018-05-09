@@ -20,7 +20,7 @@ class App {
 				let proc = this.getProcess(q.name, q.instances || 1)
 				if (!proc) {
 					console.error("Process does not exist")
-					throw new Exception()
+					throw new Error()
 				}
 				await proc.start()
 
