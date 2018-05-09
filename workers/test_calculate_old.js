@@ -1,6 +1,7 @@
 var assert = require('assert');
 var moment = require('moment');
 const uuid = require('uuid/v4');
+var sleep = require('sleep');
 var MongoRmqWorker = require('../lib/MongoRmqWorker');
 
 // calc single player scores
