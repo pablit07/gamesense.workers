@@ -84,9 +84,6 @@ class Task extends MongoRmqWorker {
                       console.log('******** Error question does not exist for ' + data.question_id);
                     }
 
-                    // db.collection.find({question_id:{$exists:true},time_answered:{$exists:false}}) 
-                    // db.collection.find({id:{$exists:true},question_id:{$exists:false},time_answered:{$exists:false}})
-
                       
             //       
                       console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + '.' + c}`)
