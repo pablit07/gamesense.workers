@@ -18,7 +18,7 @@ const uuidForCurrentExecution = uuid();
 // object with two methods
 //		@method publish
 //		@method close
-function MakeConsumer(func, q, connectionString) {
+function MakeConsumer(func, q, connectionString, amqp) {
 
 	// enable debug logging
 	console.log = function(d) { //

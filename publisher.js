@@ -40,7 +40,7 @@ function MakePublisher(func, q, connectionString, isDurable) {
 				    	ch.sendToQueue(q, new Buffer(JSON.stringify(message)), {}, (err, ok) => { resolve() });
 				    });				    
 				    _closePromises.push(_closePromise);
-				    console.log(`Sent message: ${message}`);
+				    console.log(`Sent message: ${JSON.stringify(message)}`);
 				},
 
 				close: () => {
