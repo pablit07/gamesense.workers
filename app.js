@@ -11,26 +11,23 @@ class App {
 		this.init()
 	}
 
-	init() {
-		this.config.queues.forEach(q => {
+	async init() {
+		for (let q of this.config.queues) {
 
 			try {
-
 				// start worker processes for each queue
 
 				let proc = this.getProcess(q.name, q.instances || 1)
 				if (!proc) {
 					console.error("Process does not exist")
-					throw new Error()
+					throw new Exception()
 				}
-
-				proc.start()
-
+				await proc.start()
 
 			} catch (ex) {
 				console.error('Unable to init process: ' + q.name)
 			}
-		})
+		}
 	}
 
 	getProcess(name, instances) {
