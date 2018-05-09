@@ -21,8 +21,8 @@ class Task extends MongoRmqWorker {
                   Object.assign({
                     time_video_started: 0,
                     time_answered: 0,
-                    question_id: null
-
+                    question_id: null,
+                    team: null
                   }, data)
 
 
@@ -82,6 +82,15 @@ class Task extends MongoRmqWorker {
                       data.player_batting_hand = data.batter_hand_value;
                     } else {
                       console.log('******** Error question does not exist for ' + data.question_id);
+                    }
+
+                    // read team
+
+                    let team = await db.collection('test_team').findOne({filename:data.source_etl});
+                    if (team) {
+                      data.team = team.team;
+                    } else {
+                      console.log('******** Error team does not exist for ' + data.source_etl);
                     }
 
                       
