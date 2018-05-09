@@ -1,44 +1,23 @@
-var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
-var consumer = require('../consumer');
-var publisher = require('../publisher');
 var moment = require('moment');
-var sleep = require('sleep');
 const uuid = require('uuid/v4');
-const mongo_connectionString = require('../db').mongo_connectionString;
-const rmq_connectionString = require('../env').rmq_connectionString;
+var MongoRmqWorker = require('../lib/MongoRmqWorker');
 
 // calc single player scores
 
-const q_sub = 'test.calculate_old';
 const q_pub = 'test.notify';
 const c = 'test_calc';
 
-// process.argv
-if (!process.argv.length) sleep.sleep(30);
 
-try {
+class Task extends MongoRmqWorker {
 
-    // Connection URL
-  const url = mongo_connectionString;
-    // Database Name
-  const dbName = 'prod';
-
-  if (process.argv.length > 1 && process.argv[1] == 'test') {
-    dbName = 'test';
-  }
-
-  // Use connect method to connect to the server
-  MongoClient.connect(url + '/' + dbName, function(err, client) {
-    assert.equal(null, err);
-    console.log("Connected successfully to Mongo server: " + url + '/' + dbName);
-
-          // msg should contain ids of test records to run calcs on
-          consumer.consume(async function(msgContent, msg, conn, ch) {
-             
+  /*
+     calc single player scores
+  */
+  async myTask(client, msgContent, msg, conn, ch) {
                   try {
 
-                      var db = client.db(dbName);
+                      var db = client.db(this.DbName);
 
 
                       // ***** ETL Logic ******
@@ -78,7 +57,7 @@ try {
                       };
 
                       data.processed_worker = moment().format();
-                      data.id_worker = consumer.uuidForCurrentExecution;
+                      data.id_worker = this.consumer.uuidForCurrentExecution;
                       data.id_submission = msgContent.id_submission;
                       
                       
@@ -197,11 +176,11 @@ try {
                           data.prs = Math.round(data.total_completely_correct_score) - 100;
                         }
                       
-                        console.log(` [x] Wrote ${JSON.stringify(data)} to ${dbName + '.' + c}`)
+                        console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + '.' + c}`)
                         db.collection(c).insertOne(data)
                         ch.ack(msg);
 
-                        publisher.publish({}, q_pub, rmq_connectionString);
+                        this.publish({}, q_pub);
                       }
 
 
@@ -211,10 +190,7 @@ try {
                   // client.close();
                   // conn.close();
                 }
-
-          }, q_sub, rmq_connectionString);
-    });
-
-} catch (ex) {
-  console.log("RMQ/Mongo Error: " + ex);
+  }
 }
+
+module.exports = Task;
