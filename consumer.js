@@ -1,4 +1,3 @@
-var amqp = require('amqplib/callback_api');
 const uuid = require('uuid/v4');
 var fs = require('fs');
 var util = require('util');
@@ -69,8 +68,8 @@ function MakeConsumer(func, q, connectionString, amqp) {
 	}
 }
 
-function consume(receive, q, connectionString) {
-	(MakeConsumer(receive, q, connectionString))();
+function consume(receive, q, connectionString, amqp) {
+	(MakeConsumer(receive, q, connectionString, amqp))();
 }
 
 module.exports.MakeConsumer = MakeConsumer;

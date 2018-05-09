@@ -1,4 +1,3 @@
-const amqp = require('amqplib/callback_api');
 
 
 // func gets called inside amqp connection, 
@@ -7,7 +6,7 @@ const amqp = require('amqplib/callback_api');
 // object with two methods
 //		@method publish
 //		@method close
-function MakePublisher(func, q, connectionString, isDurable) {
+function MakePublisher(func, q, connectionString, isDurable, amqp) {
 
 	var isDurable = isDurable || false;
 
@@ -59,18 +58,18 @@ function MakePublisher(func, q, connectionString, isDurable) {
 	}
 }
 
-function publish(value, q, connectionString) {
+function publish(value, q, connectionString, amqp) {
 	(MakePublisher((publisher) => {
           publisher.publish(value);
           publisher.close();
-        }, q, connectionString))();
+        }, q, connectionString, false, amqp))();
 }
 
-function publishDurable(value, q, connectionString) {
+function publishDurable(value, q, connectionString, amqp) {
 	(MakePublisher((publisher) => {
           publisher.publish(value);
           publisher.close();
-        }, q, connectionString, true))();
+        }, q, connectionString, true, amqp))();
 }
 
 module.exports.MakePublisher = MakePublisher;
