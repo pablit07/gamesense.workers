@@ -1,7 +1,7 @@
 var config = require('./config')
 var Worker = require('./lib/Worker')
-var Consumer = require('./consumer')
-var Publisher = require('./publisher')
+var Consumer = require('./lib/consumer')
+var Publisher = require('./lib/publisher')
 var MongoClient = require('mongodb').MongoClient
 var Amqp = require('amqplib/callback_api');
 
