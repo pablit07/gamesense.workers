@@ -26,6 +26,7 @@ class App {
 
 			} catch (ex) {
 				console.error('Unable to init process: ' + q.name)
+				console.error(ex)
 			}
 		}
 	}

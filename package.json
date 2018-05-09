@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "preinstall": "sudo npm i -g gulp"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +13,7 @@
     "amqplib": "^0.5.2",
     "assert": "^1.4.1",
     "aws-sdk": "^2.226.1",
+    "gulp": "^3.9.1",
     "moment": "^2.22.1",
     "mongodb": "^3.0.7",
     "pm2": "^2.10.3",
