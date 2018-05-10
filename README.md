@@ -6,7 +6,7 @@
 
         messageBroker: {
             name: 'rmq',
-            connectionString: 'amqp://admin:admin@localhost'
+            connectionString: 'amqp://user:pass@localhost'
         },
 
         database: {
