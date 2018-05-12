@@ -15,11 +15,8 @@ class Task extends MongoRmqWorker {
   /*
      calc single player scores
   */
-  async myTask(client, msgContent, msg, conn, ch) {
+  async myTask(db, msgContent, msg, conn, ch) {
                   try {
-
-                      var db = client.db(this.DbName);
-
 
                       // ***** ETL Logic ******
                       
@@ -80,15 +77,12 @@ class Task extends MongoRmqWorker {
                       let rows, cursor, query;
 
                       let retries = 0;
-                      while (data.totalRowCount !== msgContent.ids.length && retries <= 10)  {
+                      while (data.totalRowCount === 0 && retries <= 10)  {
                         // let one = await db.collection('test_usage').findOne({});
 
                         // console.log('Found:' + one.id);
 
-
-                        data.totalRowCount = await db.collection('test_usage').count({id:{$in:msgContent.ids}});
-                        console.log("Count: " + data.totalRowCount);
-
+                        data.totalRowCount = await db.collection('test_usage').count({id_submission:msgContent.id_submission});
 
                         if (data.totalRowCount === 0) {
                           retries++;
@@ -97,7 +91,6 @@ class Task extends MongoRmqWorker {
                             
                           } else {
                             console.log('********* Warn: ids not available (yet?), sleeping for 1 and retrying');
-				                    console.log('Found ' + data.totalRowCount + ' and needed ' + msgContent.ids.length);
                             sleep.sleep(1);
                           }
                         
@@ -107,7 +100,7 @@ class Task extends MongoRmqWorker {
                       else {
                       
                         // occlusion scores
-                        query = {id:{$in:msgContent.ids},occlusion:'R+2'};
+                        query = {id_submission:msgContent.id_submission,occlusion:'R+2'};
                         data.rowCount_plus_2 = await db.collection('test_usage').count(query);
                         
                         cursor = db.collection('test_usage').find(query)
@@ -118,7 +111,7 @@ class Task extends MongoRmqWorker {
                         
 
 
-                        query = {id:{$in:msgContent.ids},occlusion:'R+5'};
+                        query = {id_submission:msgContent.id_submission,occlusion:'R+5'};
                         data.rowCount_plus_5 = await db.collection('test_usage').count(query);
                         cursor = db.collection('test_usage').find(query)
                         rows = await cursor.toArray();
@@ -127,7 +120,7 @@ class Task extends MongoRmqWorker {
                         [data.occlusion_plus_5_completely_correct_score, data.occlusion_plus_5_completely_correct_avg] = (AvgToPercent(rows, 'completely_correct_score') );
 
 
-                        query = {id:{$in:msgContent.ids},occlusion:'None'};
+                        query = {id_submission:msgContent.id_submission,occlusion:'None'};
                         data.rowCount_none = await db.collection('test_usage').count(query);
                         cursor = db.collection('test_usage').find(query)
                         rows = await cursor.toArray();
@@ -138,12 +131,24 @@ class Task extends MongoRmqWorker {
 
                         // total scores
 
-                        query = {id:{$in:msgContent.ids}};
+                        query = {id_submission:msgContent.id_submission};
                         cursor = db.collection('test_usage').find(query).limit(1)
                         rows = await cursor.toArray();
                         data.total_location_score = Math.round((data.occlusion_plus_5_location_score + data.occlusion_plus_2_location_score) / 2.0);
                         data.total_type_score = Math.round((data.occlusion_plus_5_type_score + data.occlusion_plus_2_type_score) / 2.0);
                         data.total_completely_correct_score = Math.round((data.occlusion_plus_5_completely_correct_score + data.occlusion_plus_2_completely_correct_score) / 2.0);
+                        
+                        data.team = rows[0].team;
+                        data.player_id = rows[0].player_id;
+
+                        // PR score
+
+                        if (data.total_completely_correct_score) {
+                          data.prs = Math.round(data.total_completely_correct_score) - 100;
+                        }
+
+                        // update rows
+
                         db.collection('test_usage').updateMany(query, {$set: {
                           total_location_score: data.total_location_score,
                           total_type_score:data.total_type_score,
@@ -165,20 +170,12 @@ class Task extends MongoRmqWorker {
                           occlusion_plus_5_type_score:data.occlusion_plus_5_type_score,
                           occlusion_plus_5_type_avg:data.occlusion_plus_5_type_avg,
                           occlusion_plus_5_completely_correct_score:data.occlusion_plus_5_completely_correct_score,
-                          occlusion_plus_5_completely_correct_avg:data.occlusion_plus_5_completely_correct_avg
+                          occlusion_plus_5_completely_correct_avg:data.occlusion_plus_5_completely_correct_avg,
+                          prs:data.prs
                         }});
-
-                        data.player_id = rows[0].player_id
-
-
-                        // PR score
-
-                        if (data.total_completely_correct_score) {
-                          data.prs = Math.round(data.total_completely_correct_score) - 100;
-                        }
                       
-                        console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + '.' + c}`)
-                        db.collection(c).insertOne(data)
+                        console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + '.' + c}`);
+                        db.collection(c).update({id_submission:msgContent.id_submission,scoringAlgorithm:data.scoringAlgorithm}, data, {upsert:true});
                         ch.ack(msg);
 
                         this.publish({}, q_pub);
