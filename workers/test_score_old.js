@@ -14,7 +14,7 @@ class Task extends MongoRmqWorker {
     accepts a data object and expands and extracts the fields into a single row
     and inserts into the database
   */
-  async myTask(client, data, msg, conn, ch) {
+  async myTask(db, data, msg, conn, ch) {
 
                 try {
 
@@ -24,9 +24,6 @@ class Task extends MongoRmqWorker {
                     question_id: null,
                     team: null
                   }, data)
-
-
-                    var db = client.db(this.DbName);
 
 
                     // ***** ETL Logic ******
@@ -95,8 +92,9 @@ class Task extends MongoRmqWorker {
 
                       
             //       
-                      console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + '.' + c}`)
-                      db.collection(c).insertOne(data)
+                      console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + '.' + c}`);
+                      db.collection(c).insertOne(data);
+                      this.publisher.publish({id_submission:data.id_submission}, 'test.calculate_old');
                       ch.ack(msg);
               } catch (ex) {
                 console.log("Error: " + (ex.stack ? ex : ""));
