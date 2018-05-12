@@ -33,6 +33,7 @@ class Task extends ExportWorker {
             s3_bucket: '',
             s3_key: '',
             s3_presigned1wk: '',
+            player_id: '',
             data: {},
 
             received_worker: moment().format(),
@@ -48,6 +49,7 @@ class Task extends ExportWorker {
             report.data = existing.data;
             report.s3_bucket = existing.s3_bucket;
             report.s3_key = existing.s3_key;
+            report.player_id = existing.player_id;
             key = existing.s3_key;
         } else {
 
@@ -89,7 +91,8 @@ class Task extends ExportWorker {
                 occlusion_plus_2_location_avg = responses[0].occlusion_plus_2_location_avg,
                 occlusion_plus_2_completely_correct_avg = responses[0].occlusion_plus_2_completely_correct_avg;
 
-            key = `${responses[0].player_id} ${responses[0].time_answered_formatted.split(',')[0]}.xlsx`;
+            report.player_id = responses[0].player_id;
+            key = `${report.player_id} ${responses[0].time_answered_formatted.split(',')[0]} ${id_submission}.xlsx`;
 
             // clear out columns for writing to sheet
             responses.forEach((r) => { 
