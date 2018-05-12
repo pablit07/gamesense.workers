@@ -92,6 +92,7 @@ class Task extends ExportWorker {
                 occlusion_plus_2_completely_correct_avg = responses[0].occlusion_plus_2_completely_correct_avg;
 
             report.player_id = responses[0].player_id;
+            report.test_date = responses[0].time_video_started_formatted.split(',')[0];
             key = `${report.player_id} ${responses[0].time_answered_formatted.split(',')[0]} ${id_submission}.xlsx`;
 
             // clear out columns for writing to sheet

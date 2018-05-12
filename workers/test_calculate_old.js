@@ -140,6 +140,7 @@ class Task extends MongoRmqWorker {
                         
                         data.team = rows[0].team;
                         data.player_id = rows[0].player_id;
+                        data.test_date = rows[0].time_video_started_formatted.split(',')[0];
 
                         // PR score
 
