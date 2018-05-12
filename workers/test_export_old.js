@@ -10,19 +10,22 @@ const c = 'test_usage';
 class Task extends ExportWorker {
 
   /*
-     calc single player scores
+     drop an xlsx of single player scores in
+     s3 and generate a copy in the database
+     creates a presigned link to the report
+     with a week expiry
   */
   async myTask(db, data, msg, conn, ch) {
         const xlsx = this.xlsx,
               s3 = this.s3,
-              s3stream = this.s3Stream,
+              s3Stream = this.s3Stream,
               fs = this.fs
 
         var wb = xlsx.utils.book_new();
 
         const id_submission = data.id_submission,
-              bucket = "gamesense-test-responses",
-              key = `${id_submission}.xlsx`;
+              bucket = "gamesense-test-responses";
+        let key = `${id_submission}.xlsx`;
 
         let report = {
             id: uuid(),
@@ -33,7 +36,7 @@ class Task extends ExportWorker {
             data: {},
 
             received_worker: moment().format(),
-            id_worker: consumer.uuidForCurrentExecution },
+            id_worker: this.consumer.uuidForCurrentExecution },
 
             existing,
             isExisting = await db.collection('test_reports').count({id_submission:id_submission});
@@ -45,6 +48,7 @@ class Task extends ExportWorker {
             report.data = existing.data;
             report.s3_bucket = existing.s3_bucket;
             report.s3_key = existing.s3_key;
+            key = existing.s3_key;
         } else {
 
             const header = {
@@ -83,7 +87,10 @@ class Task extends ExportWorker {
             var responses = await cursor.toArray(),
                 occlusion_plus_2_type_avg = responses[0].occlusion_plus_2_type_avg,
                 occlusion_plus_2_location_avg = responses[0].occlusion_plus_2_location_avg,
-                occlusion_plus_2_completely_correct_avg = responses[0].occlusion_plus_2_completely_correct_avg
+                occlusion_plus_2_completely_correct_avg = responses[0].occlusion_plus_2_completely_correct_avg;
+
+            key = `${responses[0].player_id} ${responses[0].time_answered_formatted.split(',')[0]}.xlsx`;
+
             // clear out columns for writing to sheet
             responses.forEach((r) => { 
                 delete r._id;
@@ -166,9 +173,9 @@ class Task extends ExportWorker {
 
             xlsx.utils.book_append_sheet(wb, ws, 'Responses');
 
-            xlsx.writeFile(wb, `/tmp/${id_submission}.xlsx`);
+            xlsx.writeFile(wb, `/tmp/${key}`);
 
-            var read = fs.createReadStream(`/tmp/${id_submission}.xlsx`);
+            var read = fs.createReadStream(`/tmp/${key}`);
             var upload = s3Stream.upload({
               "Bucket": bucket,
               "Key": key
