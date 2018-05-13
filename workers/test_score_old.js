@@ -36,11 +36,11 @@ class Task extends MongoRmqWorker {
                     if (data.time_answered && data.time_video_started)
                       data.time_difference = (moment(data.time_answered) - moment(data.time_video_started));
                     if (data.time_video_started) {
-                      data.time_video_started_formatted = moment(data.time_video_started).format('MMMM Do YYYY, h:mm:ss a');
+                      data.time_video_started_formatted = moment(data.time_video_started).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
                       data.time_video_started = new Date(moment(data.time_video_started).format());
                     }
                     if (data.time_answered) {
-                      data.time_answered_formatted = moment(data.time_answered).format('MMMM Do YYYY, h:mm:ss a');
+                      data.time_answered_formatted = moment(data.time_answered).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
                       data.time_answered = new Date(moment(data.time_answered).format());
                     }
 
