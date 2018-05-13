@@ -93,7 +93,7 @@ class Task extends MongoRmqWorker {
                       
             //       
                       console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + '.' + c}`);
-                      db.collection(c).insertOne(data);
+                      db.collection(c).update({id:data.id}, data, {upsert:true});
                       // this.publish({id_submission:data.id_submission}, 'test.calculate_old');
                       ch.ack(msg);
               } catch (ex) {

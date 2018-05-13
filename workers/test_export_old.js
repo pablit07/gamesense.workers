@@ -16,17 +16,6 @@ class Task extends ExportWorker {
      with a week expiry
   */
   async myTask(db, data, msg, conn, ch) {
-
-        var deDupe = function(responses) {
-            for (var i = 1; i < responses.length; i++) {
-                if (responses[i].time_video_started_formatted === responses[i-1].time_video_started_formatted
-                    && responses[i].pitch === responses[i-1].pitch) {
-                    responses.splice(i, 1);
-                    i--;
-                }
-            }
-        }
-
         const xlsx = this.xlsx,
               s3 = this.s3,
               s3Stream = this.s3Stream,
@@ -102,8 +91,6 @@ class Task extends ExportWorker {
                 occlusion_plus_2_location_avg = responses[0].occlusion_plus_2_location_avg,
                 occlusion_plus_2_completely_correct_avg = responses[0].occlusion_plus_2_completely_correct_avg;
 
-            deDupe(responses);
-
             report.player_id = responses[0].player_id;
             report.test_date = responses[0].time_video_started_formatted.split(',')[0];
             key = `${report.player_id} ${responses[0].time_answered_formatted.split(',')[0]} ${id_submission}.xlsx`;
@@ -134,8 +121,6 @@ class Task extends ExportWorker {
             let occlusion_plus_5_type_avg = responses[0].occlusion_plus_5_type_avg,
                 occlusion_plus_5_location_avg = responses[0].occlusion_plus_5_location_avg,
                 occlusion_plus_5_completely_correct_avg = responses[0].occlusion_plus_5_completely_correct_avg;
-
-            deDupe(responses);
 
             // clear out columns for writing to sheet
             responses.forEach((r) => { 
@@ -173,7 +158,6 @@ class Task extends ExportWorker {
                 occlusion_none_location_avg = responses[0].occlusion_none_location_avg,
                 occlusion_none_completely_correct_avg = responses[0].occlusion_none_completely_correct_avg;
 
-            deDupe(responses);
             // clear out columns for writing to sheet
             responses.forEach((r) => { 
                 delete r._id;
