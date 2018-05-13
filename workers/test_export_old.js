@@ -16,6 +16,17 @@ class Task extends ExportWorker {
      with a week expiry
   */
   async myTask(db, data, msg, conn, ch) {
+
+        var deDupe = function(responses) {
+            for (var i = 1; i < responses.length; i++) {
+                if (responses[i].time_video_started_formatted === responses[i-1].time_video_started_formatted
+                    && responses[i].pitch === responses[i-1].pitch) {
+                    responses.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
         const xlsx = this.xlsx,
               s3 = this.s3,
               s3Stream = this.s3Stream,
@@ -83,13 +94,15 @@ class Task extends ExportWorker {
             };
             const headerKeys = Object.keys(Object.assign({}, header, header_plus_2));
 
-            var cursor = db.collection(c).find({"id_submission" : id_submission, "occlusion" : 'R+2'});
+            var cursor = db.collection(c).find({"id_submission" : id_submission, "occlusion" : 'R+2'}).sort({time_video_started:1});
             cursor.project(Object.assign({}, header, header_plus_2));
 
             var responses = await cursor.toArray(),
                 occlusion_plus_2_type_avg = responses[0].occlusion_plus_2_type_avg,
                 occlusion_plus_2_location_avg = responses[0].occlusion_plus_2_location_avg,
                 occlusion_plus_2_completely_correct_avg = responses[0].occlusion_plus_2_completely_correct_avg;
+
+            deDupe(responses);
 
             report.player_id = responses[0].player_id;
             report.test_date = responses[0].time_video_started_formatted.split(',')[0];
@@ -114,13 +127,16 @@ class Task extends ExportWorker {
                 Math.round(occlusion_plus_2_completely_correct_avg * 1000)
             ]], {origin:-1});
 
-            cursor = db.collection(c).find({"id_submission" : id_submission, "occlusion" : 'R+5'});
+            cursor = db.collection(c).find({"id_submission" : id_submission, "occlusion" : 'R+5'}).sort({time_video_started:1});
             cursor.project(Object.assign({}, header, header_plus_5));
 
             responses = await cursor.toArray();
             let occlusion_plus_5_type_avg = responses[0].occlusion_plus_5_type_avg,
                 occlusion_plus_5_location_avg = responses[0].occlusion_plus_5_location_avg,
                 occlusion_plus_5_completely_correct_avg = responses[0].occlusion_plus_5_completely_correct_avg;
+
+            deDupe(responses);
+
             // clear out columns for writing to sheet
             responses.forEach((r) => { 
                 delete r._id;
@@ -148,7 +164,7 @@ class Task extends ExportWorker {
             ]], {origin:-1});
 
             // "none" results
-            cursor = db.collection(c).find({"id_submission" : id_submission, "occlusion" : 'None'});
+            cursor = db.collection(c).find({"id_submission" : id_submission, "occlusion" : 'None'}).sort({time_video_started:1});
             cursor.project(Object.assign({}, header, header_none));
 
             responses = await cursor.toArray();
@@ -156,6 +172,8 @@ class Task extends ExportWorker {
             let occlusion_none_type_avg = responses[0].occlusion_none_type_avg,
                 occlusion_none_location_avg = responses[0].occlusion_none_location_avg,
                 occlusion_none_completely_correct_avg = responses[0].occlusion_none_completely_correct_avg;
+
+            deDupe(responses);
             // clear out columns for writing to sheet
             responses.forEach((r) => { 
                 delete r._id;
