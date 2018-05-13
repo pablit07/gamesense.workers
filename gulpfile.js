@@ -10,7 +10,7 @@ gulp.task('start', function(cb) {
 });
 
 gulp.task('watch', function () {
-    gulp.watch('workers/*.js', ['start']);
+    gulp.watch(['workers/*.js', 'config.js'], ['start']);
 });
 
 
