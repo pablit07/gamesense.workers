@@ -37,7 +37,7 @@ class App {
 
 			// start worker processes for each queue
 				
-			proc = this.getWorker(this.name)
+			proc = this.getWorker(this.name, queue.maxThreads || 0)
 			if (!proc) {
 				console.error("Worker does not exist")
 				throw new Error()
@@ -51,11 +51,12 @@ class App {
 		}
 	}
 
-	getWorker(name) {
+	getWorker(name, maxThreads) {
 		try {
 			let WorkerClass = Worker.get(name)
 			let worker = new WorkerClass(Consumer, Publisher, Amqp, this.config)
 			worker.q = name.replace('_', '.')
+			worker.maxThreads = maxThreads
 			return worker
 		} catch (ex) {
 			console.error(ex)
