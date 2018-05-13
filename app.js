@@ -17,6 +17,8 @@ class App {
 			try {
 				// start worker processes for each queue
 
+				if (q.start === false) continue
+
 				let proc = this.getProcess(q.name, q.instances || 1)
 				if (!proc) {
 					console.error("Process does not exist")
