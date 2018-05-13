@@ -98,42 +98,52 @@ class Task extends MongoRmqWorker {
                       }
                       if (data.totalRowCount === 0) { ch.ack(msg); }
                       else {
+
+                        let rows_plus_2, rows_plus_5, rows_none, rows;
+
+                        let query_plus_2 = {id_submission:msgContent.id_submission,occlusion:'R+2'},
+                            query_plus_5 = {id_submission:msgContent.id_submission,occlusion:'R+5'},
+                            query_none = {id_submission:msgContent.id_submission,occlusion:'None'},
+                            query = {id_submission:msgContent.id_submission};
+
+                        let cursor_plus_2 = db.collection('test_usage').find(query_plus_2),
+                            cursor_plus_5 = db.collection('test_usage').find(query_plus_5),
+                            cursor_none = db.collection('test_usage').find(query_none),
+                            cursor = db.collection('test_usage').find(query).limit(1);
+
+                        [data.rowCount_plus_2,
+                         rows_plus_2,
+                         data.rowCount_plus_5,
+                         rows_plus_5,
+                         data.rowCount_none,
+                         rows_none,
+                         rows] = await Promise.all([db.collection('test_usage').count(query_plus_2),
+                                                    cursor_plus_2.toArray(),
+                                                    db.collection('test_usage').count(query_plus_5),
+                                                    cursor_plus_5.toArray(),
+                                                    db.collection('test_usage').count(query_none),
+                                                    cursor_none.toArray(),
+                                                    cursor.toArray()]);
                       
                         // occlusion scores
-                        query = {id_submission:msgContent.id_submission,occlusion:'R+2'};
-                        data.rowCount_plus_2 = await db.collection('test_usage').count(query);
-                        
-                        cursor = db.collection('test_usage').find(query)
-                        rows = await cursor.toArray();
-                        [data.occlusion_plus_2_location_score, data.occlusion_plus_2_location_avg] = (AvgToPercent(rows, 'location_score') );
-                        [data.occlusion_plus_2_type_score, data.occlusion_plus_2_type_avg] = (AvgToPercent(rows, 'type_score') );
-                        [data.occlusion_plus_2_completely_correct_score, data.occlusion_plus_2_completely_correct_avg] = (AvgToPercent(rows, 'completely_correct_score') );
+
+                        [data.occlusion_plus_2_location_score, data.occlusion_plus_2_location_avg] = (AvgToPercent(rows_plus_2, 'location_score') );
+                        [data.occlusion_plus_2_type_score, data.occlusion_plus_2_type_avg] = (AvgToPercent(rows_plus_2, 'type_score') );
+                        [data.occlusion_plus_2_completely_correct_score, data.occlusion_plus_2_completely_correct_avg] = (AvgToPercent(rows_plus_2, 'completely_correct_score') );
                         
 
-
-                        query = {id_submission:msgContent.id_submission,occlusion:'R+5'};
-                        data.rowCount_plus_5 = await db.collection('test_usage').count(query);
-                        cursor = db.collection('test_usage').find(query)
-                        rows = await cursor.toArray();
-                        [data.occlusion_plus_5_location_score, data.occlusion_plus_5_location_avg] = (AvgToPercent(rows, 'location_score') );
-                        [data.occlusion_plus_5_type_score, data.occlusion_plus_5_type_avg] = (AvgToPercent(rows, 'type_score') );
-                        [data.occlusion_plus_5_completely_correct_score, data.occlusion_plus_5_completely_correct_avg] = (AvgToPercent(rows, 'completely_correct_score') );
+                        [data.occlusion_plus_5_location_score, data.occlusion_plus_5_location_avg] = (AvgToPercent(rows_plus_5, 'location_score') );
+                        [data.occlusion_plus_5_type_score, data.occlusion_plus_5_type_avg] = (AvgToPercent(rows_plus_5, 'type_score') );
+                        [data.occlusion_plus_5_completely_correct_score, data.occlusion_plus_5_completely_correct_avg] = (AvgToPercent(rows_plus_5, 'completely_correct_score') );
 
 
-                        query = {id_submission:msgContent.id_submission,occlusion:'None'};
-                        data.rowCount_none = await db.collection('test_usage').count(query);
-                        cursor = db.collection('test_usage').find(query)
-                        rows = await cursor.toArray();
-                        [data.occlusion_none_location_score, data.occlusion_none_location_avg] = (AvgToPercent(rows, 'location_score') );
-                        [data.occlusion_none_type_score, data.occlusion_none_type_avg] = (AvgToPercent(rows, 'type_score') );
-                        [data.occlusion_none_completely_correct_score, data.occlusion_none_completely_correct_avg] = (AvgToPercent(rows, 'completely_correct_score') );
+                        [data.occlusion_none_location_score, data.occlusion_none_location_avg] = (AvgToPercent(rows_none, 'location_score') );
+                        [data.occlusion_none_type_score, data.occlusion_none_type_avg] = (AvgToPercent(rows_none, 'type_score') );
+                        [data.occlusion_none_completely_correct_score, data.occlusion_none_completely_correct_avg] = (AvgToPercent(rows_none, 'completely_correct_score') );
                         
 
                         // total scores
 
-                        query = {id_submission:msgContent.id_submission};
-                        cursor = db.collection('test_usage').find(query).limit(1)
-                        rows = await cursor.toArray();
                         data.total_location_score = Math.round((data.occlusion_plus_5_location_score + data.occlusion_plus_2_location_score) / 2.0);
                         data.total_type_score = Math.round((data.occlusion_plus_5_type_score + data.occlusion_plus_2_type_score) / 2.0);
                         data.total_completely_correct_score = Math.round((data.occlusion_plus_5_completely_correct_score + data.occlusion_plus_2_completely_correct_score) / 2.0);
