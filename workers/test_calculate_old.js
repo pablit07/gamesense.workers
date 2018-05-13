@@ -179,7 +179,7 @@ class Task extends MongoRmqWorker {
                         db.collection(c).update({id_submission:msgContent.id_submission,scoringAlgorithm:data.scoringAlgorithm}, data, {upsert:true});
                         ch.ack(msg);
 
-                        this.publish({}, q_pub);
+                        // this.publish({}, q_pub);
                       }
 
 
