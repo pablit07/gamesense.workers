@@ -38,9 +38,6 @@ Define worker classes by extending Worker and overriding myTask()
 
     class Task extends Worker {
 
-      /*
-         calc single player scores
-      */
       async myTask(data, msg, conn, ch) {
 
           console.info("zero seconds")
