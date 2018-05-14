@@ -26,3 +26,33 @@
 
 ## Start app
     nohup gulp &
+
+## Defining workers
+
+Define worker classes by extending Worker and overriding myTask()
+
+    var Worker = require('../lib/Worker');
+
+
+    class Task extends Worker {
+
+      /*
+         calc single player scores
+      */
+      async myTask(data, msg, conn, ch) {
+
+          console.info("zero seconds")
+           
+           setTimeout(function() {
+            resolve();
+            console.info("three seconds");
+
+            ch.ack(msg);
+
+           }, 3000)
+        });
+
+      }
+    }
+
+    module.exports = Task;
