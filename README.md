@@ -42,15 +42,13 @@ Define worker classes by extending Worker and overriding myTask()
       async myTask(data, msg, conn, ch) {
 
           console.info("zero seconds")
-           
-           setTimeout(function() {
-            resolve();
+          setTimeout(function() {
             console.info("three seconds");
 
             ch.ack(msg);
 
            }, 3000)
-        });
+         });
 
       }
     }
