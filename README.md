@@ -1,5 +1,7 @@
 # gamesense.workers
 
+OOP framework for building RabbitMQ-based Node apps.
+
 ## Sample Config
 
     module.exports = {
