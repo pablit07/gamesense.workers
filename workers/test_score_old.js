@@ -1,4 +1,3 @@
-var assert = require('assert');
 var moment = require('moment');
 var MongoRmqWorker = require('../lib/MongoRmqWorker');
 
@@ -22,7 +21,7 @@ class Task extends MongoRmqWorker {
                     time_video_started: 0,
                     time_answered: 0,
                     question_id: null,
-                    team: null
+                    team: ''
                   }, data)
 
 
