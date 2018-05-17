@@ -13,6 +13,6 @@ module.exports = {
 	exchanges: [],
 	queues: [
 		{name: 'test_score_old',instances:2},
-		{name: 'test_calculate_old'}
+		{name: 'test_calculate'}
 	]
 };
