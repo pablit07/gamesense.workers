@@ -75,7 +75,7 @@ class Task extends MongoRmqWorker {
       if (question) {
         result.question_id = question.id;
         result.pitch = question.occluded_video_file.replace('.mp4', '');
-        result.occlusion = question.occluded_video.title.substr(-2, 2).replace('NO', 'None');
+        result.occlusion = ('R' + question.occluded_video.title.substr(-2, 2)).replace('RNO', 'None');
         result.player_batting_hand = question.batter_hand_value;
         
         // result = Object.assign({}, question, result);
