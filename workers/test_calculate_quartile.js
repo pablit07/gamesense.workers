@@ -1,7 +1,4 @@
-var assert = require('assert');
 var moment = require('moment');
-const uuid = require('uuid/v4');
-var sleep = require('sleep');
 var jStat = require('jStat').jStat;
 var MongoRmqWorker = require('../lib/MongoRmqWorker');
 
@@ -106,13 +103,11 @@ class Task extends MongoRmqWorker {
       };
 
       if (data.filter.dateStart) {
-        Object.assign(query, {test_date_raw: {$gte: data.filter.dateStart}});
+        Object.assign(query, {test_date_raw: {$gte: new Date(moment(data.filter.dateStart).toDate())}});
       }
       if (data.filter.dateEnd) {
-        Object.assign(query, {test_date_raw: Object.assign({}, query.test_date_raw, {$lte: data.filter.dateEnd})});
+        Object.assign(query, {test_date_raw: Object.assign({}, query.test_date_raw, {$lte: new Date(moment(data.filter.dateEnd).toDate())})});
       }
-
-      console.log(query);
 
       let rows = await db.collection(c).find(query).project(projection).toArray();
 
