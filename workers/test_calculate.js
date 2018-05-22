@@ -151,7 +151,7 @@ class Task extends MongoRmqWorker {
                         data.team = rows[0].team;
                         data.player_id = rows[0].player_id;
                         data.test_date = rows[0].time_video_started_formatted.split(',')[0];
-                        data.test_date_raw = moment(data.test_date.replace.replace(/st|nd|rd|th/, '').replace(/^(\w{3})\w*\s/, "$1 ")).toDate();
+                        data.test_date_raw = new Date(moment(data.test_date.replace(/(\d+)st|nd|rd|th/, '$1').replace(/^(\w{3})\w*\s/, "$1 ")).toDate());
 
                         // PR score
 
