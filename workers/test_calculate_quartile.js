@@ -9,7 +9,7 @@ var MongoRmqWorker = require('../lib/MongoRmqWorker');
 // calc single team / date range quartiles
 
 const c = 'test_calc';
-const quartileNames = ['100%', '75%', '50%', '25%'];
+const quartileNames = ['0%-25%', '26%-50%', '51%-75%', '76%-100%'];
 
 
 class Task extends MongoRmqWorker {
@@ -106,11 +106,13 @@ class Task extends MongoRmqWorker {
       };
 
       if (data.filter.dateStart) {
-        Object.assign(query.test_date, {$gte: data.filter.dateStart});
+        Object.assign(query, {test_date_raw: {$gte: data.filter.dateStart}});
       }
       if (data.filter.dateEnd) {
-        Object.assign(query.test_date, {$lte: data.filter.dateEnd});
+        Object.assign(query, {test_date_raw: Object.assign({}, query.test_date_raw, {$lte: data.filter.dateEnd})});
       }
+
+      console.log(query);
 
       let rows = await db.collection(c).find(query).project(projection).toArray();
 
@@ -145,13 +147,9 @@ class Task extends MongoRmqWorker {
         setQuartile(row, quarts, 'prs');
       });
 
-      console.log(result);
-      console.log(rows);
-
       rows = rows.map(row => {
         return {
           id_submission: row.id_submission,
-          quartile_filter: data.filter,
           plus_5_completely_correct_quartile: row.plus_5_completely_correct_quartile,
           plus_2_completely_correct_quartile: row.plus_2_completely_correct_quartile,
           none_completely_correct_quartile: row.none_completely_correct_quartile,
@@ -165,12 +163,16 @@ class Task extends MongoRmqWorker {
         }
       });
 
-      console.log(rows);
-
       await Promise.all(
-        [db.collection('test_calc').update({dateStart:result.dateStart, dateEnd:result.dateEnd, team:result.team}, result, {upsert:true})]
-        .concat(rows.map(row => db.collection('test_usage').updateMany({id_submission:row.id_submission}, {$set:row})))
+        rows.map(row =>
+          db.collection(c).update(
+            {dateStart:result.dateStart, dateEnd:result.dateEnd, team:result.team, id_submission:row.id_submission},
+            Object.assign({}, row, result),
+            {upsert:true})
+        )
       );
+
+      console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
 
       ch.ack(msg);
 
