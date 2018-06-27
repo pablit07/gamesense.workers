@@ -1,3 +1,5 @@
+var MongoRmqWorker = require('../lib/MongoRmqWorker');
+
 class Task extends MongoRmqWorker {
 
   /* run a single unit of work
