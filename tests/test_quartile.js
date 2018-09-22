@@ -12,6 +12,7 @@ let Consumer = {},
 	db = {
 		collection: () => {
 			return {
+				update: () => {},
 				find: () => {
 					return {
 						project: () => {
