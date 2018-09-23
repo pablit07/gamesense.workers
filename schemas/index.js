@@ -1,4 +1,4 @@
-
+// may be helpful: https://www.jsonschema.net/
 
 module.exports.test_usageSummary = {
 	"type": "array",
