@@ -142,6 +142,10 @@ class Task extends MongoRmqWorker {
                         [data.occlusion_none_completely_correct_score, data.occlusion_none_completely_correct_avg] = (AvgToPercent(rows_none, 'completely_correct_score') );
                         
 
+                        data.occlusion_plus_2_plus_5_type_avg = (data.occlusion_plus_2_type_avg + data.occlusion_plus_5_type_avg) / 2;
+                        data.occlusion_plus_2_plus_5_location_avg = (data.occlusion_plus_2_location_avg + data.occlusion_plus_5_location_avg) / 2;
+                        data.occlusion_plus_2_plus_5_completely_correct_avg = (data.occlusion_plus_2_completely_correct_avg + data.occlusion_plus_5_completely_correct_avg) / 2;
+
                         // total scores
 
                         data.total_location_score = Math.round((data.occlusion_plus_5_location_score + data.occlusion_plus_2_location_score) / 2.0);
