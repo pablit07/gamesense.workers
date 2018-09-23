@@ -2,11 +2,6 @@ var MongoRmqApiWorker = require('../lib/MongoRmqApiWorker');
 var schemas = require('../schemas');
 
 
-// calc single team / date range quartiles
-
-const c = 'test_calc';
-
-
 class Task extends MongoRmqApiWorker {
 
 	getSchema() {
