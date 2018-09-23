@@ -1,4 +1,5 @@
-var MongoRmqWorker = require('../lib/MongoRmqWorker');
+var MongoRmqApiWorker = require('../lib/MongoRmqApiWorker');
+var schemas = require('../schemas');
 
 
 // calc single team / date range quartiles
@@ -6,14 +7,18 @@ var MongoRmqWorker = require('../lib/MongoRmqWorker');
 const c = 'test_calc';
 
 
-class Task extends MongoRmqWorker {
+class Task extends MongoRmqApiWorker {
+
+	getSchema() {
+		return schemas.test_usageSummary;
+	}
 
   	/*
  	calc summary per player per test taken
 	*/
 	async myTask(db, data, msg, conn, ch) {
 
-		var rows = await db.test_usage.aggregate([{ 
+		var rows = await db.collection('test_usage').aggregate([{ 
 			$group:{
 				_id:{
 					'id_submission':'$id_submission',
@@ -27,7 +32,12 @@ class Task extends MongoRmqWorker {
 		}]).toArray();
 
 		console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + '.' + c}`);
+
+		return rows.map(x => Object.assign({number_of_responses: x.number_of_responses}, x._id));
 	}
 
 
 }
+
+
+module.exports = Task;
