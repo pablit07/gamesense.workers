@@ -1,6 +1,7 @@
 var MongoRmqApiWorker = require('../lib/MongoRmqApiWorker');
 var schemas = require('../schemas');
 
+const c = 'test_calc';
 
 class Task extends MongoRmqApiWorker {
 
@@ -27,6 +28,8 @@ class Task extends MongoRmqApiWorker {
 		}]).toArray();
 
 		console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + '.' + c}`);
+
+		ch.ack(msg);
 
 		return rows.map(x => Object.assign({number_of_responses: x.number_of_responses}, x._id));
 	}
