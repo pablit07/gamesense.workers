@@ -151,7 +151,7 @@ let Consumer = {},
 	}
 
 let worker = new Worker(Consumer, Publisher, Amqp, config)
-worker.myTask(db, data, msg, conn, ch)
+worker.myTask(data, msg, conn, ch, db)
 
 
 
