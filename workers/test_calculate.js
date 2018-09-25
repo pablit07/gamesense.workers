@@ -15,7 +15,7 @@ class Task extends MongoRmqWorker {
   /*
      calc single player scores
   */
-  async myTask(db, msgContent, msg, conn, ch) {
+  async myTask(msgContent, msg, conn, ch, db) {
                   try {
 
                       // ***** ETL Logic ******

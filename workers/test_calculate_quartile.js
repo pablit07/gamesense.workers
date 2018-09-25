@@ -14,7 +14,7 @@ class Task extends MongoRmqWorker {
   /*
      calc single team / date range quartiles
   */
-  async myTask(db, data, msg, conn, ch) {
+  async myTask(data, msg, conn, ch, db) {
 
     try {
 

@@ -15,7 +15,7 @@ class Task extends ExportWorker {
      creates a presigned link to the report
      with a week expiry
   */
-  async myTask(db, data, msg, conn, ch) {
+  async myTask(data, msg, conn, ch, db) {
         const xlsx = this.xlsx,
               s3 = this.s3,
               s3Stream = this.s3Stream,

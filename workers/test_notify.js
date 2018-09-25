@@ -6,7 +6,7 @@ var MongoRmqWorker = require('../lib/MongoRmqWorker');
 
 class Task extends MongoRmqWorker {
 
-	async myTask(db, data, msg, conn, ch) {
+	async myTask(data, msg, conn, ch, db) {
 
 			if (data.filters && data.filters.report_viewer) {
 

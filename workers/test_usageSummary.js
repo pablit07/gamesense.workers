@@ -11,7 +11,7 @@ class Task extends MongoRmqApiWorker {
   	/*
  	calc summary per player per test taken
 	*/
-	async myTask(db, data, msg, conn, ch) {
+	async myTask(data, msg, conn, ch, db) {
 
 		var rows = await db.collection('test_usage').aggregate([{ 
 			$group:{

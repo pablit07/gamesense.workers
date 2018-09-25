@@ -14,7 +14,7 @@ class Task extends MongoRmqWorker {
     accepts a data object and expands and extracts the fields into a single row
     and inserts into the database
   */
-  async myTask(db, data, msg, conn, ch) {
+  async myTask(data, msg, conn, ch, db) {
 
     if (!data.app) throw Error("Must include an app label")
 
