@@ -2,6 +2,7 @@ var crypto = require('crypto');
 var moment = require('moment');
 var schemas = require('../schemas');
 var MongoRmqWorker = require('../lib/MongoRmqWorker');
+var flatten = require('flat');
 
 
 const c = 'raw_usage';
@@ -22,6 +23,7 @@ class Task extends MongoRmqWorker {
   */
   async myTask(data, msg, conn, ch, db) {
 
+
     if (!data.app) throw Error("Must include an app label")
 
     try {
@@ -29,22 +31,18 @@ class Task extends MongoRmqWorker {
       let result = {
       time_video_started: 0,
       time_answered: 0,
-      question_id: null,
-      team: '',
-      app: '',
-      Question: null,
-      Response: null,
-      spent_time: 0
+      app: ''
       };
 
       result.app = data.app = data.app.toUpperCase();
 
       result.id = crypto.createHash('md5').update(`${data.app}${data.id}`).digest("hex");
       result.id_submission = crypto.createHash('md5').update(`${data.app}${data.activity_id}`).digest("hex");
+      result.action_name = data.action_name;
 
       let actionValue = JSON.parse(data.action_value);
 
-      // TODO flatten?
+      Object.assign(result, flatten(actionValue));
 
       // ***** ETL Logic ******
 
@@ -53,7 +51,6 @@ class Task extends MongoRmqWorker {
 
       // time
 
-      result.time_difference = actionValue.spent_time;
       if (data.timestamp) {
         result.time_answered_formatted = moment(data.timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
         result.time_answered = new Date(moment(data.timestamp).format());
@@ -62,13 +59,19 @@ class Task extends MongoRmqWorker {
       result.time_video_started = new Date(moment(data.timestamp).subtract(result.time_difference, 'seconds').format());
       result.time_video_started_formatted = moment(result.time_answered).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
 
+      
+      let query = {id_submission:result.id_submission};
+      if (result.action_name != 'Final Score)') {
+        query.id = result.id
+        await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
+      } else {
 
-      Object.assign(result, actionValue);
-
-            //       
+        await db.collection('raw_usage_combined').findOneAndUpdate(query, {$set: result}, {upsert:true});
+        delete result.id; delete result.timestamp;
+        await db.collection(c).update(query, {$set: result}, {upsert:true});
+      }
+      
       console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
-      let query = {id_submission:result.id_submission,question_id:result.question_id};
-      let doc = await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true, returnOriginal:false});
 
       // this.publish({id_submission:data.id_submission}, 'test.calculate_old');
       ch.ack(msg);
