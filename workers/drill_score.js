@@ -11,8 +11,8 @@ const pitchtypes = {1:'Fastball',2:'Cutter',3:'Changeup',4:'Curveball',5:'Slider
 class Task extends MongoRmqWorker {
 
   constructor() {
-    super(...arguments);
-    this._collection = 'test_usage';
+    super(...arguments)
+    this._collection = 'drill_usage';
   }
 
 
