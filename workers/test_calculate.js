@@ -44,6 +44,10 @@ class Task extends MongoRmqWorker {
                         occlusion_none_completely_correct_score: 0,
                         occlusion_none_completely_correct_avg: 0,
 
+                        occlusion_plus_2_plus_5_type_avg: 0,
+                        occlusion_plus_2_plus_5_location_avg: 0,
+                        occlusion_plus_2_plus_5_completely_correct_avg: 0,
+
                         total_type_score: 0,
                         total_location_score: 0,
                         total_completely_correct_score: 0,
@@ -187,6 +191,9 @@ class Task extends MongoRmqWorker {
                           occlusion_plus_5_type_avg:data.occlusion_plus_5_type_avg,
                           occlusion_plus_5_completely_correct_score:data.occlusion_plus_5_completely_correct_score,
                           occlusion_plus_5_completely_correct_avg:data.occlusion_plus_5_completely_correct_avg,
+                          occlusion_plus_2_plus_5_type_avg:data.occlusion_plus_2_plus_5_type_avg,
+                          occlusion_plus_2_plus_5_location_avg:data.occlusion_plus_2_plus_5_location_avg,
+                          occlusion_plus_2_plus_5_completely_correct_avg:data.occlusion_plus_2_plus_5_completely_correct_avg
                           prs:data.prs
                         }});
                       
