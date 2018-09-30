@@ -42,10 +42,11 @@ class Task extends MongoRmqWorker {
       result.id = crypto.createHash('md5').update(`${data.app}${data.id}`).digest("hex");
       result.id_submission = crypto.createHash('md5').update(`${data.app}${data.activity_id}`).digest("hex");
       result.action_name = data.action_name;
+      result.user_id = data.user_id;
 
-      let actionValue = JSON.parse(data.action_value);
+      let actionValue = typeof(data.action_value) == 'string' ? JSON.parse(data.action_value) : data.action_value;
 
-      Object.assign(result, flatten(actionValue));
+      Object.assign(result, flatten(actionValue, {delimiter: '__'}));
 
       // ***** ETL Logic ******
 
