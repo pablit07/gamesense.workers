@@ -58,7 +58,7 @@ class Task extends MongoRmqWorker {
 
         await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
         delete result.id; delete result.timestamp; delete result.object_id; delete result.content_type_id;
-        await db.collection('raw_usage').update(query, {$set: result}, {upsert:true});
+        await db.collection('raw_usage').update(query, {$set: result}, {upsert:false});
       
       console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
 
