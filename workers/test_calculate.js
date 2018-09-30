@@ -193,7 +193,7 @@ class Task extends MongoRmqWorker {
                           occlusion_plus_5_completely_correct_avg:data.occlusion_plus_5_completely_correct_avg,
                           occlusion_plus_2_plus_5_type_avg:data.occlusion_plus_2_plus_5_type_avg,
                           occlusion_plus_2_plus_5_location_avg:data.occlusion_plus_2_plus_5_location_avg,
-                          occlusion_plus_2_plus_5_completely_correct_avg:data.occlusion_plus_2_plus_5_completely_correct_avg
+                          occlusion_plus_2_plus_5_completely_correct_avg:data.occlusion_plus_2_plus_5_completely_correct_avg,
                           prs:data.prs
                         }});
                       

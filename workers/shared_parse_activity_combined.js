@@ -24,7 +24,10 @@ class Task extends MongoRmqWorker {
   async myTask(data, msg, conn, ch, db) {
 
 
-    if (!data.app) throw Error("Must include an app label")
+    if (!data.app) {
+      ch.ack(msg);
+      throw Error("Must include an app label");
+    }
 
     try {
 
