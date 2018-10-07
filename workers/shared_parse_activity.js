@@ -70,8 +70,9 @@ class Task extends MongoRmqWorker {
         await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
       } else {
 
-        await db.collection('raw_usage_combined').findOneAndUpdate(query, {$set: result}, {upsert:true});
+        let combined = await db.collection('raw_usage_combined').findOneAndUpdate(query, {$set: result}, {upsert:true});
         delete result.id; delete result.timestamp;
+        await db.collection(c).update(query, {$set: combined}, {upsert:true});
         await db.collection(c).update(query, {$set: result}, {upsert:true});
       }
       
