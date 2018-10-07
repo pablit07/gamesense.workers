@@ -65,7 +65,7 @@ class Task extends MongoRmqWorker {
 
       
       let query = {id_submission:result.id_submission};
-      if (result.action_name != 'Final Score)') {
+      if (result.action_name != 'Final Score') {
         query.id = result.id
         await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
       } else {
