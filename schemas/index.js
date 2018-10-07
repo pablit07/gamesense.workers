@@ -27,3 +27,42 @@ module.exports.test_usageSummary = {
 	}
 };
 
+module.exports.activity = {
+	"type": "object",
+	  "properties": {
+	    "app": {
+	      "type": "string"
+	    },
+	    "id": {
+	      "type": "string"
+	    },
+	    "activity_id": {
+	      "type": "string"
+	    },
+	    "action_value": {
+	      "type": "string"
+	    }
+	  }
+	};
+
+
+module.exports.user = {
+	"type": "object",
+	  "properties": {
+	    "app": {
+	      "type": "string"
+	    },
+	    "id": {
+	      "type": "string"
+	    },
+	    "first_name": {
+	      "type": "string"
+	    },
+	    "last_name": {
+	      "type": "string"
+	    },
+	    "team": {
+	      "type": "string"
+	    }
+	  }
+	};
