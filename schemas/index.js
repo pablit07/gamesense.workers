@@ -66,3 +66,47 @@ module.exports.user = {
 	    }
 	  }
 	};
+
+module.exports.userId = {
+	"type": "object",
+	"properties": {
+		"app": {
+			"type": "string"
+		},
+		"id": {
+			"type": "string"
+		}
+	}
+};
+
+module.exports.userIds = {
+	"type": "array",
+	"items": module.exports.userId
+
+}
+
+module.exports.drill_sessions = {
+	"type": "array",
+	"items": {
+		"type": "object",
+		"properties": {
+			"drills": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"score": {
+							"type": "number"
+						},
+						"recommendation": {
+							"type": "string"
+						},
+						"decisionQualityFromLast": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		}
+	}
+}
