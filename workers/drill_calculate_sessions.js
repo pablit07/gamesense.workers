@@ -64,6 +64,33 @@ class Task extends MongoRmqApiWorker {
           sessions[i].drills.push({name:drill.activity_value,score:drill["Total Score"] || 0,recommendation,time_answered,decisionQualityFromLast:'NEUTRAL'});
         }
       }
+
+
+      for(var s in sessions) {
+        let prevDrill;
+        let drills = sessions[s].drills;
+
+        for (var d in drills) { 
+
+          let drill = drills[d];
+
+          if (!prevDrill) {
+            prevDrill = drill;
+            continue;
+          }
+
+          if ((prevDrill.recommendation == 'Repeat This Drill' && drill.name != prevDrill.name) ||
+              (prevDrill.recommendation == 'New Drill' && drill.name == prevDrill.name)) {
+            drill.decisionQualityFromLast = 'BAD';
+          } else {
+            drill.decisionQualityFromLast = 'GOOD';
+          }
+
+          prevDrill = drill;
+
+        }
+        prevDrill = null;
+      }
       
       result = sessions;
 
