@@ -61,7 +61,29 @@ class Task extends MongoRmqWorker {
                       data.processed_worker = moment().format();
                       data.id_worker = this.consumer.uuidForCurrentExecution;
                       data.id_submission = msgContent.id_submission;
-                      
+
+                      const player_jersey_id = msgContent.player_jersey_id,
+                            player_id = msgContent.player_id;
+
+
+                      if (player_id || player_jersey_id) {
+                        let query = {};
+                        if (player_id) {
+                            Object.assign(query, {player_id});
+                        }
+                        if (player_jersey_id) {
+                            Object.assign(query, {player_jersey_id});
+                        }
+                        var byPlayerId = await db.collection('test_usage').distinct('id_submission', query);
+                        if (byPlayerId.length) {
+                            byPlayerId.forEach(r => {
+                                this.publishQ({id_submission:r}, 'test.calculate', false, ch);
+                                
+                            });
+                        }
+                        ch.ack(msg);
+                        return;
+                      }
                       
 
                       data.response_ids = msgContent.ids;

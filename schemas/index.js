@@ -110,3 +110,18 @@ module.exports.drill_sessions = {
 		}
 	}
 }
+
+module.exports.singlePlayer = {
+	"type": "object",
+	"properties": {
+		"player_id": {
+			"type": "string"
+		},
+		"id_submission": {
+			"type": "string"
+		},
+		"player_jersey_id": {
+			"type": "string"
+		}
+	}
+}

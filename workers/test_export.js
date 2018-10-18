@@ -9,6 +9,11 @@ const c = 'test_usage';
 
 class Task extends ExportWorker {
 
+
+    getInputSchema() {
+        return schemas.singlePlayer;
+    }
+
   /*
      drop an xlsx of single player scores in
      s3 and generate a copy in the database
@@ -24,7 +29,28 @@ class Task extends ExportWorker {
         var wb = xlsx.utils.book_new();
 
         const id_submission = data.id_submission,
+              player_id = data.player_id,
+              player_jersey_id = data.player_jersey_id,
               bucket = "gamesense-test-responses";
+
+        if (player_id || player_jersey_id) {
+            let query = {};
+            if (player_id) {
+                Object.assign(query, {player_id});
+            }
+            if (player_jersey_id) {
+                Object.assign(query, {player_id: {$regex: new RegExp(`^${player_jersey_id}`)}})
+            }
+            var byPlayerId = await db.collection('test_calc').find(query).sort({test_date_raw:1}).toArray();
+            if (byPlayerId.length) {
+                byPlayerId.forEach(r => {
+                    this.publishQ({id_submission:r.id_submission}, 'test.export', false, ch);
+                });
+            }
+            ch.ack(msg);
+            return;
+        }
+
         let key = `${id_submission}.xlsx`;
 
         let report = {
@@ -218,7 +244,7 @@ class Task extends ExportWorker {
 
         await db.collection('test_reports').updateOne({id_submission:id_submission}, {$set: {s3_presigned1wk:report.s3_presigned1wk}});
 
-        this.publish(report, 'test.exported_old', true);
+        this.publishQ(report, 'test.exported_old', true);
 
         ch.ack(msg);
     }
