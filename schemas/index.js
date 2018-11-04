@@ -22,6 +22,9 @@ module.exports.test_usageSummary = {
 			},
 			"app": {
 				"type": "string"
+			},
+			"test_date": {
+				"type": "string"
 			}
 		}
 	}

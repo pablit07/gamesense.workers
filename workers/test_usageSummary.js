@@ -21,8 +21,9 @@ class Task extends MongoRmqApiWorker {
 					'source_etl':'$source_etl',
 					'team':'$team',
 					'app':'$app',
-					'player_id':'$player_id'
+					'player_id':'$player_id',
 				},
+				test_date:{$first:'$time_video_started'},
 				number_of_responses:{$sum:1}
 			} 
 		}]).toArray();
@@ -31,7 +32,7 @@ class Task extends MongoRmqApiWorker {
 
 		ch.ack(msg);
 
-		return rows.map(x => Object.assign({number_of_responses: x.number_of_responses}, x._id));
+		return rows.map(x => Object.assign({number_of_responses: x.number_of_responses, test_date: x.test_date}, x._id));
 	}
 
 
