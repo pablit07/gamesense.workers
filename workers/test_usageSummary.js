@@ -1,4 +1,5 @@
 var MongoRmqApiWorker = require('../lib/MongoRmqApiWorker');
+var moment = require('moment');
 var schemas = require('../schemas');
 
 const c = 'test_calc';
@@ -25,14 +26,14 @@ class Task extends MongoRmqApiWorker {
 				},
 				test_date:{$first:'$time_video_started'},
 				number_of_responses:{$sum:1}
-			} 
-		}]).toArray();
+			},
+		}, {$sort:{"test_date":-1} }]).toArray();
 
 		console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + '.' + c}`);
 
 		ch.ack(msg);
 
-		return rows.map(x => Object.assign({number_of_responses: x.number_of_responses, test_date: x.test_date}, x._id));
+		return rows.map(x => Object.assign({number_of_responses: x.number_of_responses, test_date: (x.test_date ? moment(x.test_date).utcOffset(-6).format('MMMM Do YYYY') : null)}, x._id));
 	}
 
 
