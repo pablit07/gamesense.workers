@@ -9,6 +9,11 @@ const c = 'raw_usage';
 
 class Task extends MongoRmqWorker {
 
+  constructor() {
+    super(...arguments);
+    this.responseRmqExchangeName = 'usage';
+  }
+
 
   getInputSchema() {
     return schemas.action;
@@ -58,26 +63,30 @@ class Task extends MongoRmqWorker {
       }
       
       let query = {id_submission:result.id_submission};
-      if (result.action_name != 'Final Score') {
-        query.id = result.id
-        await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
-        
-        let combined = await db.collection('raw_usage_combined').findOne(query);
-        if (combined && combined.activity_name == 'Drill' && result.action_name == 'Question Response') {
-          const headers = {
-            routing_key: 'usage.action.drill'
-          };
-          let message = Object.assign({}, combined, result);
-          this.publish(message, headers, ch);
+
+      query.id = result.id
+      await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
+      
+      let combined = await db.collection('raw_usage_combined').findOne({id_submission:result.id_submission});
+      if (combined && combined.activity_name == 'Drill') {
+        let headers, message;
+        switch (result.action_name)
+        {
+          case 'Question Response':
+            headers = {
+              routing_key: 'usage.action.drill.question_response'
+            };
+            message = Object.assign({}, combined, result);
+            this.publish(message, headers, ch);
+            break;
+
+          case 'Final Score':
+            headers = {
+              routing_key: 'usage.action.drill.final_score'
+            };
+            this.publish({id_submission:result.id_submission}, headers, ch); 
+            break;
         }
-
-      } else {
-
-        let combined = await db.collection('raw_usage_combined').findOneAndUpdate(query, {$set: result}, {upsert:true});
-
-        delete result.id;
-        await db.collection(c).update(query, {$set: combined}, {upsert:true});
-        await db.collection(c).update(query, {$set: result}, {upsert:true});
       }
       
       console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
