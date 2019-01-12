@@ -133,6 +133,7 @@ class Task extends MongoRmqWorker {
     } catch (ex) {
       console.log("Error: " + (ex.stack ? ex : ""));
       console.error(ex.stack || ex);
+      ch.reject(msg);
       // client.close();
       // conn.close();
     }
