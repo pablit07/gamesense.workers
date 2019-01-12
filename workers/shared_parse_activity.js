@@ -7,14 +7,11 @@ var flatten = require('flat');
 
 const c = 'raw_usage';
 
-const locations = {1:'Ball',2:'Strike'};
-const pitchtypes = {1:'Fastball',2:'Cutter',3:'Changeup',4:'Curveball',5:'Slider'};
-
 class Task extends MongoRmqWorker {
 
 
   getInputSchema() {
-    return schemas.activity;
+    return schemas.action;
   }
 
   /*
@@ -56,22 +53,29 @@ class Task extends MongoRmqWorker {
       // time
 
       if (data.timestamp) {
-        result.time_answered_formatted = moment(data.timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
-        result.time_answered = new Date(moment(data.timestamp).format());
+        result.timestamp_formatted = moment(data.timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
+        result.timestamp = new Date(moment(data.timestamp).format());
       }
-      // if (actionValue.time_answered) {
-      result.time_video_started = new Date(moment(data.timestamp).subtract(result.time_difference, 'seconds').format());
-      result.time_video_started_formatted = moment(result.time_answered).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
-
       
       let query = {id_submission:result.id_submission};
       if (result.action_name != 'Final Score') {
         query.id = result.id
         await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
+        
+        let combined = await db.collection('raw_usage_combined').findOne(query);
+        if (combined && combined.activity_name == 'Drill' && result.action_name == 'Question Response') {
+          const headers = {
+            routing_key: 'usage.action.drill'
+          };
+          let message = Object.assign({}, combined, result);
+          this.publish(message, headers, ch);
+        }
+
       } else {
 
         let combined = await db.collection('raw_usage_combined').findOneAndUpdate(query, {$set: result}, {upsert:true});
-        delete result.id; delete result.timestamp;
+
+        delete result.id;
         await db.collection(c).update(query, {$set: combined}, {upsert:true});
         await db.collection(c).update(query, {$set: result}, {upsert:true});
       }

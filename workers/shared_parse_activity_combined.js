@@ -7,9 +7,6 @@ var flatten = require('flat');
 
 const c = 'raw_usage_combined';
 
-const locations = {1:'Ball',2:'Strike'};
-const pitchtypes = {1:'Fastball',2:'Cutter',3:'Changeup',4:'Curveball',5:'Slider'};
-
 class Task extends MongoRmqWorker {
 
 
@@ -56,9 +53,16 @@ class Task extends MongoRmqWorker {
       
       let query = {id_submission:result.id_submission};
 
-        await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
-        delete result.id; delete result.timestamp; delete result.object_id; delete result.content_type_id;
-        await db.collection('raw_usage').update(query, {$set: result}, {upsert:false});
+      if (result.activity_name == 'Drill') {
+        const headers = {
+          routing_key: 'usage.activity.drill'
+        };
+        this.publish(result, headers, ch);
+      }
+
+      await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
+      delete result.id; delete result.timestamp; delete result.object_id; delete result.content_type_id;
+      await db.collection('raw_usage').update(query, {$set: result}, {upsert:false});
       
       console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
 

@@ -1,130 +1,183 @@
 // may be helpful: https://www.jsonschema.net/
 
 module.exports.test_usageSummary = {
-	"type": "array",
-	"items": {
-		"type": "object",
-		"properties": {
-			"number_of_responses": {
-				"type": "number"
-			},
-			"id_submission": {
-				"type": "string"
-			},
-			"source_etl": {
-				"type": "string"
-			},
-			"team": {
-				"type": "string"
-			},
-			"player_id": {
-				"type": "string"
-			},
-			"app": {
-				"type": "string"
-			},
-			"test_date": {
-				"type": "string"
-			}
-		}
-	}
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "number_of_responses": {
+                "type": "number"
+            },
+            "id_submission": {
+                "type": "string"
+            },
+            "source_etl": {
+                "type": "string"
+            },
+            "team": {
+                "type": "string"
+            },
+            "player_id": {
+                "type": "string"
+            },
+            "app": {
+                "type": "string"
+            },
+            "test_date": {
+                "type": "string"
+            }
+        }
+    }
 };
 
 module.exports.activity = {
-	"type": "object",
-	  "properties": {
-	    "app": {
-	      "type": "string"
-	    },
-	    "id": {
-	      "type": "string"
-	    },
-	    "activity_id": {
-	      "type": "string"
-	    },
-	    "action_value": {
-	      "type": "string"
-	    }
-	  }
-	};
+    "type": "object",
+    "properties": {
+        "app": {
+            "type": "string"
+        },
+        'activity_id': {
+            "type": "string"
+        },
+        'app': {
+            "type": "string"
+        },
+        'user_id': {
+            "type": "string"
+        },
+        'team': {
+            "type": "string"
+        },
+        'team_id': {
+            "type": "string"
+        },
+        'activity_name': {
+            "type": "string"
+        },
+        'activity_value': {
+            "type": "string"
+        },
+        'content_type_id': {
+            "type": "string"
+        },
+        'object_id': {
+            "type": "string"
+        },
+        'timestamp': {
+            "type": "string"
+        },
+    }
+};
 
+module.exports.action = {
+    "type": "object",
+    "properties": {
+        'id': {
+            "type": "string"
+        },
+        'app': {
+            "type": "string"
+        },
+        'user_id': {
+            "type": "string"
+        },
+        'activity_id': {
+            "type": "string"
+        },
+        'action_name': {
+            "type": "string"
+        },
+        'action_value': {
+            "type": "string"
+        },
+        'content_type_id': {
+            "type": "string"
+        },
+        'object_id': {
+            "type": "string"
+        },
+        'timestamp': {
+            "type": "string"
+        }
+    }
+};
 
 module.exports.user = {
-	"type": "object",
-	  "properties": {
-	    "app": {
-	      "type": "string"
-	    },
-	    "id": {
-	      "type": "string"
-	    },
-	    "first_name": {
-	      "type": "string"
-	    },
-	    "last_name": {
-	      "type": "string"
-	    },
-	    "team": {
-	      "type": "string"
-	    }
-	  }
-	};
+    "type": "object",
+    "properties": {
+        "app": {
+            "type": "string"
+        },
+        "id": {
+            "type": "string"
+        },
+        "first_name": {
+            "type": "string"
+        },
+        "last_name": {
+            "type": "string"
+        },
+        "team": {
+            "type": "string"
+        }
+    }
+};
 
 module.exports.userId = {
-	"type": "object",
-	"properties": {
-		"app": {
-			"type": "string"
-		},
-		"id": {
-			"type": "string"
-		}
-	}
+    "type": "object",
+    "properties": {
+        "app": {
+            "type": "string"
+        },
+        "id": {
+            "type": "string"
+        }
+    }
 };
 
 module.exports.userIds = {
-	"type": "array",
-	"items": module.exports.userId
+    "type": "array",
+    "items": module.exports.userId
 
 }
 
 module.exports.drill_sessions = {
-	"type": "array",
-	"items": {
-		"type": "object",
-		"properties": {
-			"drills": {
-				"type": "array",
-				"items": {
-					"type": "object",
-					"properties": {
-						"score": {
-							"type": "number"
-						},
-						"recommendation": {
-							"type": "string"
-						},
-						"decisionQualityFromLast": {
-							"type": "string"
-						}
-					}
-				}
-			}
-		}
-	}
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "drills": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "score": {
+                            "type": "number"
+                        },
+                        "recommendation": {
+                            "type": "string"
+                        },
+                        "decisionQualityFromLast": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 module.exports.singlePlayer = {
-	"type": "object",
-	"properties": {
-		"player_id": {
-			"type": "string"
-		},
-		"id_submission": {
-			"type": "string"
-		},
-		"player_jersey_id": {
-			"type": "string"
-		}
-	}
+    "type": "object",
+    "properties": {
+        "player_id": {
+            "type": "string"
+        },
+        "id_submission": {
+            "type": "string"
+        },
+        "player_jersey_id": {
+            "type": "string"
+        }
+    }
 }
