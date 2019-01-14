@@ -30,6 +30,39 @@ module.exports.test_usageSummary = {
     }
 };
 
+module.exports.drill_usageSummary = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "id_submission": {
+                "type": "string"
+            },
+            "team_name": {
+                "type": "string"
+            },
+            "player_first_name": {
+                "type": "string"
+            },
+            "player_last_name": {
+                "type": "string"
+            },
+            "drill": {
+                "type": "string"
+            },
+            "first_glance_total_score": {
+                "type": "string"
+            },
+            "app": {
+                "type": "string"
+            },
+            "completion_timestamp_formatted": {
+                "type": "string"
+            }
+        }
+    }
+};
+
 module.exports.activity = {
     "type": "object",
     "properties": {
@@ -119,6 +152,24 @@ module.exports.user = {
         },
         "team": {
             "type": "string"
+        }
+    }
+};
+
+module.exports.final_score_action = {
+    "type": "object",
+    "properties": {
+        "id_submission":{
+            "type": "string"
+        },
+        "Pitch Location Score": {
+            "type": "number"
+        },
+        "Pitch Type Score": {
+            "type": "number"
+        },
+        "Total Score": {
+            "type": "number"
         }
     }
 };
