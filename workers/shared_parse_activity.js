@@ -84,7 +84,7 @@ class Task extends MongoRmqWorker {
             headers = {
               routing_key: 'usage.action.drill.final_score'
             };
-            this.publish({id_submission:result.id_submission}, headers, ch); 
+            this.publish({id_submission:result.id_submission,timestamp:result.timestamp,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
             break;
         }
       }
