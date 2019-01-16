@@ -183,12 +183,18 @@ class Task extends MongoRmqWorker {
                         data.first_glance_type_score = msgContent["Pitch Type Score"];
                         data.first_glance_total_score = msgContent["Total Score"];
 
+                        if (msgContent["timestamp"] !== undefined) {
+                          data.completion_timestamp = msgContent.timestamp;
+                          data.completion_timestamp_formatted = moment(data.completion_timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
+                        }
+
                         // update rows
 
                         db.collection('drill_usage').updateMany(query, {$set: {
                           first_glance_location_score:data.first_glance_location_score,
                           first_glance_type_score:data.first_glance_type_score,
                           first_glance_total_score:data.first_glance_total_score,
+                          completion_timestamp:data.completion_timestamp,
                           total_location_score: data.total_location_score,
                           total_type_score:data.total_type_score,
                           total_completely_correct_score:data.total_completely_correct_score,
