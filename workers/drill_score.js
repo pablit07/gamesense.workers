@@ -93,11 +93,16 @@ class Task extends MongoRmqWorker {
 
       result.id_question = crypto.createHash('md5').update(`${data.app}${result.question_id}`).digest("hex");
       result.pitch = data.Question__occluded_video_file.replace('.mp4', '');
-      result.occlusion = ('R+' + result.pitch.substr(-1, 1)).replace(/R\+[abcdABCD]/, 'None');
+      result.occlusion = ('R+' + result.pitch.substr(-1, 1)).replace(/R\+[abcdABCD]/, 'None').replace('+R', '');
       result.player_batting_hand = data.Question__batter_hand_value;
       result.pitcher_hand = data.Question__occluded_video__batter_hand;
       result.pitch_count = data.Question__occluded_video__pitch_count;
       result.pitcher_code = data.Question__occluded_video__pitcher_name;
+      let pitchParts = new RegExp("^([0-9])+.*").exec(result.pitch.replace(result.pitcher_code + '-', ''));
+      if (pitchParts) {
+        result.pitch_number = pitchParts[1];
+        result.pitcher_is_flipped = new RegExp("^[bd].*").test(result.pitch.replace(result.pitch_number).substr(0,1));
+      }
       result.drill = data.activity_value;
       let titleParts = new RegExp("([-A-Za-z\\s/.]+[A-Za-z]).*-\\s*([Ww]icked|[Aa]dvanced|[Bb]asic|[Ff]ull [Pp]itch)").exec(data.activity_value);
       if (titleParts) {
