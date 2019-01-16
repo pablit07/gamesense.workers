@@ -86,8 +86,6 @@ class Task extends MongoRmqWorker {
                       }
                       
 
-                      data.response_ids = msgContent.ids;
-
                       // sums then averages, x 100 then round to nearest non decimal
                       let AvgToPercent = (scores, propName) => {
                         let sum = 0.0;
@@ -178,8 +176,20 @@ class Task extends MongoRmqWorker {
                         data.total_type_score = Math.round((data.occlusion_plus_5_type_score + data.occlusion_plus_2_type_score) / 2.0);
                         data.total_completely_correct_score = Math.round((data.occlusion_plus_5_completely_correct_score + data.occlusion_plus_2_completely_correct_score) / 2.0);
                         
+                        if (msgContent["timestamp"] !== undefined) {
+                          data.completion_timestamp = msgContent.timestamp;
+                          data.completion_timestamp_formatted = moment(data.completion_timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
+                        }
+
+                        let player = {};
+                        if (msgContent["player"] !== undefined) {
+                          player = msgContent.player;
+                          player.player_id = data.player_id = `${player.jersey_number} ${player.first_name} ${player.last_name}`;
+                        } else {
+                          player.player_id = data.player_id = rows[0].player_id;
+                        }
+
                         data.team = rows[0].team;
-                        data.player_id = rows[0].player_id;
                         data.test_date = rows[0].time_video_started_formatted.split(',')[0];
                         data.test_date_raw = new Date(data.test_date.replace(/(\d+)st|nd|rd|th/, '$1').replace(/^(\w{3})\w*\s/, "$1 "));
 
@@ -192,6 +202,11 @@ class Task extends MongoRmqWorker {
                         // update rows
 
                         db.collection('test_usage').updateMany(query, {$set: {
+                          ...player,
+                          team: data.team,
+                          test_date: data.test_date,
+                          test_date_raw:data.test_date_raw,
+                          completion_timestamp:data.completion_timestamp,
                           total_location_score: data.total_location_score,
                           total_type_score:data.total_type_score,
                           total_completely_correct_score:data.total_completely_correct_score,
