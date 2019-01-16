@@ -48,6 +48,8 @@ class Task extends MongoRmqWorker {
 
       let actionValue = typeof(data.action_value) == 'string' ? JSON.parse(data.action_value) : data.action_value;
 
+      result.player = actionValue.player;
+
       Object.assign(result, flatten(actionValue, {delimiter: '__'}));
 
       // ***** ETL Logic ******
@@ -86,6 +88,27 @@ class Task extends MongoRmqWorker {
             };
             this.publish({id_submission:result.id_submission,timestamp:result.timestamp,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
             break;
+        }
+      } else if (combined && combined.activity_name == 'Test') {
+
+        let headers, message;
+        switch (result.action_name)
+        {
+          case 'Test Response':
+            headers = {
+              routing_key: 'usage.action.test.question_response'
+            };
+            message = Object.assign({}, combined, result);
+            this.publish(message, headers, ch);
+            break;
+
+          case 'Test':
+            headers = {
+              routing_key: 'usage.action.test.final_score'
+            };
+            this.publish({id_submission:result.id_submission,timestamp:result.timestamp,player:result.player__first_name,,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
+            break;
+
         }
       }
       
