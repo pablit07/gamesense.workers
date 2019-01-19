@@ -72,9 +72,6 @@ module.exports.activity = {
         'activity_id': {
             "type": "string"
         },
-        'app': {
-            "type": "string"
-        },
         'user_id': {
             "type": "string"
         },

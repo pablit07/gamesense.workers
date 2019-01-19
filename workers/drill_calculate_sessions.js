@@ -1,10 +1,9 @@
-var crypto = require('crypto');
-var moment = require('moment');
-var schemas = require('../schemas');
-var MongoRmqApiWorker = require('../lib/MongoRmqApiWorker');
+var moment = require("moment");
+var schemas = require("../schemas");
+var MongoRmqApiWorker = require("../lib/MongoRmqApiWorker");
 
 
-const c = 'drill_calc';
+const c = "drill_calc";
 const SESSION_MINUTES = 30;
 
 class Task extends MongoRmqApiWorker {
@@ -35,13 +34,13 @@ class Task extends MongoRmqApiWorker {
       let result;
       // TODO support multiple
       let query = {user_id:data.user_id,app:data.app};
-      let drills = await db.collection('raw_usage_combined').find(query, {time_answered:1,activity_value:1,"Total Score":1}).toArray();
+      let drills = await db.collection("raw_usage_combined").find(query, {time_answered:1,activity_value:1,"Total Score":1}).toArray();
       let sessions = [{drills:[]}];
       let i = 0;
 
       drills = drills.sort((a,b) => (a.time_answered > b.time_answered) ? 1 : ((b.time_answered > a.time_answered) ? -1 : 0));
 
-      for (var d in drills) {
+      for (let d in drills) {
 
         let drill = drills[d];
         let diff, last, next;
@@ -49,19 +48,19 @@ class Task extends MongoRmqApiWorker {
         let time_answered = drill.time_answered;
 
         if (!sessions[i].drills.length) {
-          sessions[i].drills.push({name:drill.activity_value,score:drill["Total Score"] || 0,recommendation,time_answered,decisionQualityFromLast:'NEUTRAL'});
+          sessions[i].drills.push({name:drill.activity_value,score:drill["Total Score"] || 0,recommendation,time_answered,decisionQualityFromLast:"NEUTRAL"});
           continue;
         }
 
         last = moment(sessions[i].drills[sessions[i].drills.length - 1].time_answered);
         next = moment(drill.time_answered);
-        diff = next.diff(last, 'minutes');
+        diff = next.diff(last, "minutes");
 
         if (diff >= SESSION_MINUTES) {
           i++;
-          sessions[i] = {drills:[{name:drill.activity_value,score:drill["Total Score"] || 0,recommendation,time_answered,decisionQualityFromLast:'NEUTRAL'}]};
+          sessions[i] = {drills:[{name:drill.activity_value,score:drill["Total Score"] || 0,recommendation,time_answered,decisionQualityFromLast:"NEUTRAL"}]};
         } else {
-          sessions[i].drills.push({name:drill.activity_value,score:drill["Total Score"] || 0,recommendation,time_answered,decisionQualityFromLast:'NEUTRAL'});
+          sessions[i].drills.push({name:drill.activity_value,score:drill["Total Score"] || 0,recommendation,time_answered,decisionQualityFromLast:"NEUTRAL"});
         }
       }
 
@@ -70,7 +69,7 @@ class Task extends MongoRmqApiWorker {
         let prevDrill;
         let drills = sessions[s].drills;
 
-        for (var d in drills) { 
+        for (let d in drills) { 
 
           let drill = drills[d];
 
@@ -79,11 +78,11 @@ class Task extends MongoRmqApiWorker {
             continue;
           }
 
-          if ((prevDrill.recommendation == 'Repeat This Drill' && drill.name != prevDrill.name) ||
-              (prevDrill.recommendation == 'New Drill' && drill.name == prevDrill.name)) {
-            drill.decisionQualityFromLast = 'BAD';
+          if ((prevDrill.recommendation == "Repeat This Drill" && drill.name != prevDrill.name) ||
+              (prevDrill.recommendation == "New Drill" && drill.name == prevDrill.name)) {
+            drill.decisionQualityFromLast = "BAD";
           } else {
-            drill.decisionQualityFromLast = 'GOOD';
+            drill.decisionQualityFromLast = "GOOD";
           }
 
           prevDrill = drill;
@@ -94,7 +93,7 @@ class Task extends MongoRmqApiWorker {
       
       result = sessions;
 
-      console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
+      console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + "." + c}`);
 
       ch.ack(msg);
 

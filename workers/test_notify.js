@@ -14,7 +14,7 @@ class Task extends MongoRmqWorker {
 				cursor.project({id_submission: 1});
 				let id_submissions = await cursor.toArray();
 
-				id_submissions = id_submissions.filter(s => s.id_submission != "");
+				id_submissions = id_submissions.filter(s => s.id_submission !== "");
 
 				this.publishDurable({id_submissions:id_submissions.map((s) => s.id_submission), for:'report_viewer'}, 'test.notified');
 			}

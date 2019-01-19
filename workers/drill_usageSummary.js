@@ -1,5 +1,4 @@
 var MongoRmqApiWorker = require("../lib/MongoRmqApiWorker");
-var moment = require("moment");
 var schemas = require("../schemas");
 
 const c = "drill_calc";

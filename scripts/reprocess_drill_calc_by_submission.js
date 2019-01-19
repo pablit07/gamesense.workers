@@ -30,7 +30,7 @@ var MongoClient = require('mongodb').MongoClient;
     });
 
     client.close();
-})();
+}());
 
 
 

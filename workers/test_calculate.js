@@ -5,7 +5,6 @@ var MongoRmqWorker = require("../lib/MongoRmqWorker");
 
 // calc single player scores
 
-const q_pub = "test.notify";
 const c = "test_calc";
 
 

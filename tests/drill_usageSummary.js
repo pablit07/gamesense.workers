@@ -47,7 +47,7 @@ let worker = new Worker(Consumer, Publisher, Amqp, config);
 var doIt = async function() {
 	var response = await worker.myTask(data, msg, conn, ch, db);
 
-	console.log(validate(worker.getSchema(), response).errors == 0);
+	console.log(validate(worker.getSchema(), response).errors === 0);
 };
 
 doIt();

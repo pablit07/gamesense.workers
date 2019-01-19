@@ -1,12 +1,12 @@
-var moment = require('moment');
-var jStat = require('jStat').jStat;
-var MongoRmqWorker = require('../lib/MongoRmqWorker');
+var moment = require("moment");
+var jStat = require("jStat").jStat;
+var MongoRmqWorker = require("../lib/MongoRmqWorker");
 
 
 // calc single team / date range quartiles
 
-const c = 'test_calc';
-const quartileNames = ['0%-25%', '26%-50%', '51%-75%', '76%-100%'];
+const c = "test_calc";
+const quartileNames = ["0%-25%", "26%-50%", "51%-75%", "76%-100%"];
 
 
 class Task extends MongoRmqWorker {
@@ -59,14 +59,14 @@ class Task extends MongoRmqWorker {
         prs_median: 0,
         prs_q3: 0,
 
-        scoringAlgorithm: 'ScoreQuartile',
+        scoringAlgorithm: "ScoreQuartile",
         dateStart: data.filter.dateStart,
         dateEnd: data.filter.dateEnd,
         team: data.filter.team
       };
 
       var setQuartile = function(row, quarts, scoreAnswerKey) {
-        var rowScore = scoreAnswerKey != 'prs' ? row[`occlusion_${scoreAnswerKey}_score`] : row.prs;
+        var rowScore = scoreAnswerKey !== "prs" ? row[`occlusion_${scoreAnswerKey}_score`] : row.prs;
             if (rowScore > quarts[0]) {
 
               if (rowScore > quarts[1]) {
@@ -111,17 +111,17 @@ class Task extends MongoRmqWorker {
 
       let rows = await db.collection(c).find(query).project(projection).toArray();
 
-      let answerTypes = ['completely_correct', 'type', 'location'];
+      let answerTypes = ["completely_correct", "type", "location"];
 
       for (let answerType of answerTypes) {
 
         let maps = {
-          plus_5: rows.map(x=>x['occlusion_plus_5_'+answerType+'_score']),
-          plus_2: rows.map(x=>x['occlusion_plus_2_'+answerType+'_score']),
-          none: rows.map(x=>x['occlusion_none_'+answerType+'_score'])
+          plus_5: rows.map(x=>x["occlusion_plus_5_"+answerType+"_score"]),
+          plus_2: rows.map(x=>x["occlusion_plus_2_"+answerType+"_score"]),
+          none: rows.map(x=>x["occlusion_none_"+answerType+"_score"])
         };
 
-        for (let scoreType of ['plus_5', 'plus_2', 'none']) {
+        for (let scoreType of ["plus_5", "plus_2", "none"]) {
           let quarts = jStat.quartiles(maps[scoreType]);
           result[`occlusion_${scoreType}_${answerType}_score_q1`] = quarts[0];
           result[`occlusion_${scoreType}_${answerType}_score_median`] = quarts[1];
@@ -139,7 +139,7 @@ class Task extends MongoRmqWorker {
       result.prs_q3 = quarts[2];
 
       rows.forEach(row => {
-        setQuartile(row, quarts, 'prs');
+        setQuartile(row, quarts, "prs");
       });
 
       rows = rows.map(row => {
@@ -167,7 +167,7 @@ class Task extends MongoRmqWorker {
         )
       );
 
-      console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
+      console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + "." + c}`);
 
       ch.ack(msg);
 

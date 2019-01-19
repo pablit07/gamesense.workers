@@ -2,7 +2,6 @@ var crypto = require('crypto');
 var moment = require('moment');
 var schemas = require('../schemas');
 var MongoRmqWorker = require('../lib/MongoRmqWorker');
-var flatten = require('flat');
 
 
 const c = 'raw_usage_combined';
