@@ -1,13 +1,12 @@
-var assert = require('assert');
-var moment = require('moment');
-const uuid = require('uuid/v4');
-var sleep = require('sleep');
-var MongoRmqWorker = require('../lib/MongoRmqWorker');
+var moment = require("moment");
+const uuid = require("uuid/v4");
+var sleep = require("sleep");
+var MongoRmqWorker = require("../lib/MongoRmqWorker");
 
 // calc single player scores
 
-const q_pub = 'test.notify';
-const c = 'test_calc';
+const q_pub = "test.notify";
+const c = "test_calc";
 
 
 class Task extends MongoRmqWorker {
@@ -74,10 +73,10 @@ class Task extends MongoRmqWorker {
                         if (player_jersey_id) {
                             Object.assign(query, {player_jersey_id});
                         }
-                        var byPlayerId = await db.collection('test_usage').distinct('id_submission', query);
+                        var byPlayerId = await db.collection("test_usage").distinct("id_submission", query);
                         if (byPlayerId.length) {
                             byPlayerId.forEach(r => {
-                                this.publishQ({id_submission:r}, 'test.calculate', false, ch);
+                                this.publishQ({id_submission:r}, "test.calculate", false, ch);
                                 
                             });
                         }
@@ -102,19 +101,19 @@ class Task extends MongoRmqWorker {
 
                       let retries = 0;
                       while (data.totalRowCount === 0 && retries <= 10)  {
-                        // let one = await db.collection('test_usage').findOne({});
+                        // let one = await db.collection("test_usage").findOne({});
 
-                        // console.log('Found:' + one.id);
+                        // console.log("Found:" + one.id);
 
-                        data.totalRowCount = await db.collection('test_usage').count({id_submission:msgContent.id_submission});
+                        data.totalRowCount = await db.collection("test_usage").count({id_submission:msgContent.id_submission});
 
                         if (data.totalRowCount === 0) {
                           retries++;
                           if (retries > 10) {
-                            console.log('Killing message ' + JSON.stringify(msgContent.id_submission));
+                            console.log("Killing message " + JSON.stringify(msgContent.id_submission));
                             
                           } else {
-                            console.log('********* Warn: ids not available (yet?), sleeping for 1 and retrying');
+                            console.log("********* Warn: ids not available (yet?), sleeping for 1 and retrying");
                             sleep.sleep(1);
                           }
                         
@@ -125,15 +124,15 @@ class Task extends MongoRmqWorker {
 
                         let rows_plus_2, rows_plus_5, rows_none, rows;
 
-                        let query_plus_2 = {id_submission:msgContent.id_submission,occlusion:'R+2'},
-                            query_plus_5 = {id_submission:msgContent.id_submission,occlusion:'R+5'},
-                            query_none = {id_submission:msgContent.id_submission,occlusion:'None'},
+                        let query_plus_2 = {id_submission:msgContent.id_submission,occlusion:"R+2"},
+                            query_plus_5 = {id_submission:msgContent.id_submission,occlusion:"R+5"},
+                            query_none = {id_submission:msgContent.id_submission,occlusion:"None"},
                             query = {id_submission:msgContent.id_submission};
 
-                        let cursor_plus_2 = db.collection('test_usage').find(query_plus_2),
-                            cursor_plus_5 = db.collection('test_usage').find(query_plus_5),
-                            cursor_none = db.collection('test_usage').find(query_none),
-                            cursor = db.collection('test_usage').find(query).limit(1);
+                        let cursor_plus_2 = db.collection("test_usage").find(query_plus_2),
+                            cursor_plus_5 = db.collection("test_usage").find(query_plus_5),
+                            cursor_none = db.collection("test_usage").find(query_none),
+                            cursor = db.collection("test_usage").find(query).limit(1);
 
                         [data.rowCount_plus_2,
                          rows_plus_2,
@@ -141,29 +140,29 @@ class Task extends MongoRmqWorker {
                          rows_plus_5,
                          data.rowCount_none,
                          rows_none,
-                         rows] = await Promise.all([db.collection('test_usage').count(query_plus_2),
+                         rows] = await Promise.all([db.collection("test_usage").count(query_plus_2),
                                                     cursor_plus_2.toArray(),
-                                                    db.collection('test_usage').count(query_plus_5),
+                                                    db.collection("test_usage").count(query_plus_5),
                                                     cursor_plus_5.toArray(),
-                                                    db.collection('test_usage').count(query_none),
+                                                    db.collection("test_usage").count(query_none),
                                                     cursor_none.toArray(),
                                                     cursor.toArray()]);
                       
                         // occlusion scores
 
-                        [data.occlusion_plus_2_location_score, data.occlusion_plus_2_location_avg] = (AvgToPercent(rows_plus_2, 'location_score') );
-                        [data.occlusion_plus_2_type_score, data.occlusion_plus_2_type_avg] = (AvgToPercent(rows_plus_2, 'type_score') );
-                        [data.occlusion_plus_2_completely_correct_score, data.occlusion_plus_2_completely_correct_avg] = (AvgToPercent(rows_plus_2, 'completely_correct_score') );
+                        [data.occlusion_plus_2_location_score, data.occlusion_plus_2_location_avg] = (AvgToPercent(rows_plus_2, "location_score") );
+                        [data.occlusion_plus_2_type_score, data.occlusion_plus_2_type_avg] = (AvgToPercent(rows_plus_2, "type_score") );
+                        [data.occlusion_plus_2_completely_correct_score, data.occlusion_plus_2_completely_correct_avg] = (AvgToPercent(rows_plus_2, "completely_correct_score") );
                         
 
-                        [data.occlusion_plus_5_location_score, data.occlusion_plus_5_location_avg] = (AvgToPercent(rows_plus_5, 'location_score') );
-                        [data.occlusion_plus_5_type_score, data.occlusion_plus_5_type_avg] = (AvgToPercent(rows_plus_5, 'type_score') );
-                        [data.occlusion_plus_5_completely_correct_score, data.occlusion_plus_5_completely_correct_avg] = (AvgToPercent(rows_plus_5, 'completely_correct_score') );
+                        [data.occlusion_plus_5_location_score, data.occlusion_plus_5_location_avg] = (AvgToPercent(rows_plus_5, "location_score") );
+                        [data.occlusion_plus_5_type_score, data.occlusion_plus_5_type_avg] = (AvgToPercent(rows_plus_5, "type_score") );
+                        [data.occlusion_plus_5_completely_correct_score, data.occlusion_plus_5_completely_correct_avg] = (AvgToPercent(rows_plus_5, "completely_correct_score") );
 
 
-                        [data.occlusion_none_location_score, data.occlusion_none_location_avg] = (AvgToPercent(rows_none, 'location_score') );
-                        [data.occlusion_none_type_score, data.occlusion_none_type_avg] = (AvgToPercent(rows_none, 'type_score') );
-                        [data.occlusion_none_completely_correct_score, data.occlusion_none_completely_correct_avg] = (AvgToPercent(rows_none, 'completely_correct_score') );
+                        [data.occlusion_none_location_score, data.occlusion_none_location_avg] = (AvgToPercent(rows_none, "location_score") );
+                        [data.occlusion_none_type_score, data.occlusion_none_type_avg] = (AvgToPercent(rows_none, "type_score") );
+                        [data.occlusion_none_completely_correct_score, data.occlusion_none_completely_correct_avg] = (AvgToPercent(rows_none, "completely_correct_score") );
                         
 
                         data.occlusion_plus_2_plus_5_type_avg = (data.occlusion_plus_2_type_avg + data.occlusion_plus_5_type_avg) / 2;
@@ -178,7 +177,7 @@ class Task extends MongoRmqWorker {
                         
                         if (msgContent["timestamp"] !== undefined) {
                           data.completion_timestamp = msgContent.timestamp;
-                          data.completion_timestamp_formatted = moment(data.completion_timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
+                          data.completion_timestamp_formatted = moment(data.completion_timestamp).utcOffset(-6).format("MMMM Do YYYY, h:mm:ss a");
                         }
 
                         let player = {};
@@ -190,8 +189,8 @@ class Task extends MongoRmqWorker {
                         }
 
                         data.team = rows[0].team;
-                        data.test_date = rows[0].time_video_started_formatted.split(',')[0];
-                        data.test_date_raw = new Date(data.test_date.replace(/(\d+)st|nd|rd|th/, '$1').replace(/^(\w{3})\w*\s/, "$1 "));
+                        data.test_date = rows[0].time_video_started_formatted.split(",")[0];
+                        data.test_date_raw = new Date(data.test_date.replace(/(\d+)st|nd|rd|th/, "$1").replace(/^(\w{3})\w*\s/, "$1 "));
 
                         // PR score
 
@@ -201,7 +200,7 @@ class Task extends MongoRmqWorker {
 
                         // update rows
 
-                        db.collection('test_usage').updateMany(query, {$set: {
+                        db.collection("test_usage").updateMany(query, {$set: {
                           ...player,
                           team: data.team,
                           test_date: data.test_date,
@@ -234,7 +233,7 @@ class Task extends MongoRmqWorker {
                           prs:data.prs
                         }});
                       
-                        console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + '.' + c}`);
+                        console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + "." + c}`);
                         db.collection(c).update({id_submission:msgContent.id_submission,scoringAlgorithm:data.scoringAlgorithm}, data, {upsert:true});
                         ch.ack(msg);
 
