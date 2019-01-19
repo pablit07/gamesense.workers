@@ -33,7 +33,7 @@ class Task extends MongoRmqApiWorker {
 
 		ch.ack(msg);
 
-		return rows.map(x => Object.assign({number_of_responses: x.number_of_responses, test_date: (x.test_date ? moment(x.test_date).utcOffset(-6).format('MMMM Do YYYY') : null)}, x._id));
+		return rows.map(x => Object.assign({id_submission: (x.id_submission || ""), team: (x.team || ""), player_id: (x.player_id || ""), source_etl: (x.source_etl || ""), app: (x.app || ""),number_of_responses: (x.number_of_responses || 0), test_date: (x.test_date ? moment(x.test_date).utcOffset(-6).format('MMMM Do YYYY') : null)}, x._id));
 	}
 
 

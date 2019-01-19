@@ -51,7 +51,7 @@ module.exports.drill_usageSummary = {
                 "type": "string"
             },
             "first_glance_total_score": {
-                "type": "string"
+                "type": "number"
             },
             "app": {
                 "type": "string"

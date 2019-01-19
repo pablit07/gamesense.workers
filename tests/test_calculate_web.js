@@ -1,5 +1,5 @@
 
-var Worker = require('../workers/test_calculate');
+var Worker = require("../workers/test_calculate");
 
 
 let dataRow = {
@@ -102,8 +102,8 @@ let Consumer = {},
 	Publisher = {},
 	Amqp = {},
 	config = {
-		database: { name: '', connectionString: '' },
-		messageBroker: { connectionString: '' }
+		database: { name: "", connectionString: "" },
+		messageBroker: { connectionString: "" }
 	},
 	db = {
 		collection: () => {
@@ -118,21 +118,21 @@ let Consumer = {},
 								toArray: () => {
 									return [
 										dataRow
-									]
+									];
 								}
 							}
 						},
 						toArray: () => {
 							return [
 								dataRow
-							]
+							];
 						},
 						limit: () => {
 							return {
 								toArray: () => {
 									return [
 										dataRow
-									]
+									];
 								}
 							}
 						}
@@ -148,10 +148,10 @@ let Consumer = {},
 	conn = {},
 	ch = {
 		ack: () => {}
-	}
+	};
 
-let worker = new Worker(Consumer, Publisher, Amqp, config)
-worker.myTask(data, msg, conn, ch, db)
+let worker = new Worker(Consumer, Publisher, Amqp, config);
+worker.myTask(data, msg, conn, ch, db);
 
 
 
