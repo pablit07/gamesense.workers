@@ -39,16 +39,28 @@ module.exports.drill_usageSummary = {
                 "type": "string"
             },
             "team_name": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             },
             "player_first_name": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             },
             "player_last_name": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             },
             "drill": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             },
             "first_glance_total_score": {
                 "type": "number"
@@ -57,7 +69,10 @@ module.exports.drill_usageSummary = {
                 "type": "string"
             },
             "completion_timestamp_formatted": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             }
         }
     }
@@ -219,13 +234,26 @@ module.exports.singlePlayer = {
     "type": "object",
     "properties": {
         "player_id": {
-            "type": "string"
+            "anyOf": [
+                {"type": "string"},
+                {"type": "null"}
+            ]
         },
         "id_submission": {
-            "type": "string"
+            "anyOf": [
+                {"type": "string"},
+                {"type": "null"}
+            ]
         },
         "player_jersey_id": {
-            "type": "string"
+            "anyOf": [
+                {"type": "string"},
+                {"type": "null"}
+            ]
         }
     }
+}
+
+module.exports.test_export = {
+    
 }

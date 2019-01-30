@@ -46,7 +46,14 @@ class Task extends MongoRmqWorker {
       result.action_name = data.action_name;
       result.user_id = data.user_id;
 
-      let actionValue = typeof(data.action_value) == 'string' ? JSON.parse(data.action_value) : data.action_value;
+      let actionValue;
+      try {
+        actionValue = typeof(data.action_value) == 'string' ? JSON.parse(data.action_value) : data.action_value;
+      } catch (ex) {
+        console.error("Invalid JSON");
+        ch.ack(msg);
+        return;
+      }
 
       result.player = actionValue.player;
 
@@ -67,7 +74,9 @@ class Task extends MongoRmqWorker {
       let query = {id_submission:result.id_submission};
 
       query.id = result.id
+      console.log('here')
       await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
+      console.log('here 2')
       
       let combined = await db.collection('raw_usage_combined').findOne({id_submission:result.id_submission});
       if (combined && combined.activity_name == 'Drill') {
@@ -106,7 +115,7 @@ class Task extends MongoRmqWorker {
             headers = {
               routing_key: 'usage.action.test.final_score'
             };
-            this.publish({id_submission:result.id_submission,timestamp:result.timestamp,player:result.player__first_name,,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
+            this.publish({id_submission:result.id_submission,timestamp:result.timestamp,player:result.player__first_name,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
             break;
 
         }

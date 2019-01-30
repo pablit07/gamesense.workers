@@ -1,15 +1,20 @@
 var moment = require("moment");
 const uuid = require("uuid/v4");
-const ExportWorker = require("../lib/ExportWorker")
+const ExportApiWorker = require("../lib/ExportApiWorker")
+const schemas = require("../schemas");
 // write csvs and upload to s3
 
 const c = "test_usage";
 
-class Task extends ExportWorker {
+class Task extends ExportApiWorker {
 
 
     getInputSchema() {
         return schemas.singlePlayer;
+    }
+
+    getSchema() {
+        return schemas.test_export;
     }
 
   /*
@@ -242,9 +247,10 @@ class Task extends ExportWorker {
 
         await db.collection("test_reports").updateOne({id_submission:id_submission}, {$set: {s3_presigned1wk:report.s3_presigned1wk}});
 
-        this.publishQ(report, "test.exported_old", true);
-
+        // this.publishQ(report, "test.exported_old", true);
         ch.ack(msg);
+
+        return report;
     }
 }
 
