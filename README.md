@@ -13,7 +13,7 @@ OOP framework for building RabbitMQ-based Node apps.
 
         database: {
             name: 'prod',
-            connectionString: 'mongodb://ec2-18-233-188-98.compute-1.amazonaws.com'
+            connectionString: 'mongodb://localhost'
         },
 
         exchanges: [],
