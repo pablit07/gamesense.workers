@@ -112,7 +112,7 @@ class Task extends MongoRmqWorker {
                             console.log("Killing message " + JSON.stringify(msgContent.id_submission));
                             
                           } else {
-                            console.log("********* Warn: ids not available (yet?), sleeping for 1 and retrying");
+                            console.log(`********* Warn: ids not available (yet?) for ${data.id_submission}, sleeping for 1 and retrying`);
                             sleep.sleep(1);
                           }
                         
@@ -146,6 +146,16 @@ class Task extends MongoRmqWorker {
                                                     db.collection("test_usage").count(query_none),
                                                     cursor_none.toArray(),
                                                     cursor.toArray()]);
+
+                        // intentional == to also check for undefined
+                        if (rows_plus_2.some(r => r.type_score == null || r.location_score == null) ||
+                            rows_plus_5.some(r => r.type_score == null || r.location_score == null) ||
+                            rows_none.some(r => r.type_score == null || r.location_score == null)) {
+                                
+                                console.log(`********* Warn: some null scores exist for ${data.id_submission}, rejecting`);
+                                ch.reject(msg);
+                                return;
+                        }
                       
                         // occlusion scores
 

@@ -74,9 +74,7 @@ class Task extends MongoRmqWorker {
       let query = {id_submission:result.id_submission};
 
       query.id = result.id
-      console.log('here')
       await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
-      console.log('here 2')
       
       let combined = await db.collection('raw_usage_combined').findOne({id_submission:result.id_submission});
       if (combined && combined.activity_name == 'Drill') {
@@ -95,7 +93,7 @@ class Task extends MongoRmqWorker {
             headers = {
               routing_key: 'usage.action.drill.final_score'
             };
-            this.publish({id_submission:result.id_submission,timestamp:result.timestamp,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
+            this.publish({app:result.app,id_submission:result.id_submission,timestamp:result.timestamp,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
             break;
         }
       } else if (combined && combined.activity_name == 'Test') {
@@ -104,18 +102,21 @@ class Task extends MongoRmqWorker {
         switch (result.action_name)
         {
           case 'Test Response':
+          case 'Question Response':
             headers = {
               routing_key: 'usage.action.test.question_response'
             };
+            result.action_name = 'Test Response'
             message = Object.assign({}, combined, result);
+            console.log("Message: ", message);
             this.publish(message, headers, ch);
             break;
 
-          case 'Test':
+          case 'Final Score':
             headers = {
               routing_key: 'usage.action.test.final_score'
             };
-            this.publish({id_submission:result.id_submission,timestamp:result.timestamp,player:result.player__first_name,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
+            this.publish({app:result.app,id_submission:result.id_submission,timestamp:result.timestamp,player:result.player__first_name,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
             break;
 
         }

@@ -26,6 +26,7 @@ class Task extends MongoRmqWorker {
                       
                       let data = {
                         id: uuid(),
+                        app: msgContent.app,
 
                         occlusion_plus_5_type_score: 0,
                         occlusion_plus_5_type_avg: 0,
@@ -160,13 +161,14 @@ class Task extends MongoRmqWorker {
                         data.team_name = rows[0].team;
                         data.team_id = rows[0].team_id;
                         data.user_id = rows[0].user_id;
-                        data.player_first_name = rows[0].first_name;
-                        data.player_last_name = rows[0].last_name;
+                        data.player_first_name = rows[0].player_first_name;
+                        data.player_last_name = rows[0].player_last_name;
                         data.player_id = rows[0].player_id;
                         data.drill_date = rows[0].time_video_started_formatted.split(",")[0];
-                        data.drill_date_raw = new Date(data.drill_date.replace(/(\d+)st|nd|rd|th/, "$1").replace(/^(\w{3})\w*\s/, "$1 "));
+                        data.drill_date_raw = moment(data.drill_date, "MMMM Do YYYY").toDate();
                         data.player_batting_hand = rows[0].player_batting_hand;
                         data.drill = rows[0].drill;
+                        data.device = rows[0].device;
                         data.pitcher_name = rows[0].pitcher_name;
                         data.difficulty = rows[0].difficulty;
 
@@ -190,37 +192,7 @@ class Task extends MongoRmqWorker {
 
                         // update rows
 
-                        db.collection("drill_usage").updateMany(query, {$set: {
-                          first_glance_location_score:data.first_glance_location_score,
-                          first_glance_type_score:data.first_glance_type_score,
-                          first_glance_total_score:data.first_glance_total_score,
-                          completion_timestamp:data.completion_timestamp,
-                          total_location_score: data.total_location_score,
-                          total_type_score:data.total_type_score,
-                          total_completely_correct_score:data.total_completely_correct_score,
-                          occlusion_plus_2_location_score: data.occlusion_plus_2_location_score,
-                          occlusion_plus_2_location_avg: data.occlusion_plus_2_location_avg,
-                          occlusion_plus_2_type_score:data.occlusion_plus_2_type_score,
-                          occlusion_plus_2_type_avg:data.occlusion_plus_2_type_avg,
-                          occlusion_plus_2_completely_correct_score:data.occlusion_plus_2_completely_correct_score,
-                          occlusion_plus_2_completely_correct_avg:data.occlusion_plus_2_completely_correct_avg,
-                          occlusion_none_location_score: data.occlusion_none_location_score,
-                          occlusion_none_location_avg: data.occlusion_none_location_avg,
-                          occlusion_none_type_score:data.occlusion_none_type_score,
-                          occlusion_none_type_avg:data.occlusion_none_type_avg,
-                          occlusion_none_completely_correct_score:data.occlusion_none_completely_correct_score,
-                          occlusion_none_completely_correct_avg:data.occlusion_none_completely_correct_avg,
-                          occlusion_plus_5_location_score: data.occlusion_plus_5_location_score,
-                          occlusion_plus_5_location_avg: data.occlusion_plus_5_location_avg,
-                          occlusion_plus_5_type_score:data.occlusion_plus_5_type_score,
-                          occlusion_plus_5_type_avg:data.occlusion_plus_5_type_avg,
-                          occlusion_plus_5_completely_correct_score:data.occlusion_plus_5_completely_correct_score,
-                          occlusion_plus_5_completely_correct_avg:data.occlusion_plus_5_completely_correct_avg,
-                          occlusion_plus_2_plus_5_type_avg:data.occlusion_plus_2_plus_5_type_avg,
-                          occlusion_plus_2_plus_5_location_avg:data.occlusion_plus_2_plus_5_location_avg,
-                          occlusion_plus_2_plus_5_completely_correct_avg:data.occlusion_plus_2_plus_5_completely_correct_avg,
-                          prs:data.prs
-                        }});
+                        db.collection("drill_usage").updateMany(query, {$set: data});
                       
                         console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + "." + c}`);
                         db.collection(c).update({id_submission:msgContent.id_submission,scoringAlgorithm:data.scoringAlgorithm}, data, {upsert:true});

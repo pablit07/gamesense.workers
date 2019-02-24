@@ -66,7 +66,16 @@ module.exports.drill_usageSummary = {
                 "type": "number"
             },
             "app": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
+            },
+            "device": {
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             },
             "completion_timestamp_formatted": {
                 "anyOf": [
