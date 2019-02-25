@@ -31,7 +31,7 @@ class Task extends MongoRmqApiWorker {
 				Object.assign(query['drill_date_raw'], {$lt:new Date(data.filters.maxDate)});
 			}
 
-			var rows = await db.collection(c).find(query, {sort:{"drill_date_raw":-1} }).project({id_submission:1,team_name:1,player_first_name:1,player_last_name:1,drill:1,app:1,first_glance_total_score:1,completion_timestamp_formatted:1,device:1}).toArray();
+			var rows = await db.collection(c).find(query, {sort:{"completion_timestamp":-1} }).project({id_submission:1,team_name:1,player_first_name:1,player_last_name:1,drill:1,app:1,first_glance_total_score:1,completion_timestamp_formatted:1,device:1}).toArray();
 
 			rows = rows.map(r => {
 				let shortDate = moment(r.completion_timestamp_formatted, 'MMMM Do YYYY, hh:mm:ss a').format('YYYY-MM-DD HH:mm:ss');
