@@ -113,10 +113,11 @@ class Task extends MongoRmqWorker {
             break;
 
           case 'Final Score':
+          case 'Test':
             headers = {
               routing_key: 'usage.action.test.final_score'
             };
-            this.publish({app:result.app,id_submission:result.id_submission,timestamp:result.timestamp,player:result.player__first_name,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
+            this.publish({app:result.app,id_submission:result.id_submission,timestamp:result.timestamp,player:result.player,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
             break;
 
         }
