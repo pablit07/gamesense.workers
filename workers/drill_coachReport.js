@@ -9,7 +9,7 @@ const c = "drill_calc";
 class Task extends MongoRmqApiWorker {
 
 	getSchema() {
-		return schemas.drill_usageSummary;
+		return schemas.drill_coachReport;
 	}
 
   	/*
@@ -19,7 +19,16 @@ class Task extends MongoRmqApiWorker {
 
 		try
 		{
-			var rows = await DataRepository.drill_usageSummary(data, db);
+			if (!data.user_id) {
+		      throw Error("Must include user_id");
+		    }
+
+			data.filters = data.filters || {};
+			data.filters.team_name = (await db.collection('users').findOne({id:data.user_id})).team;
+			
+			if (!data.filters.team_name) return [];
+
+			var rows = await DataRepository.drill_usageSummary(data, db, header => { delete header.team_name; return header });
 
 			console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + "." + c}`);
 

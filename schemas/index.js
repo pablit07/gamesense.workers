@@ -87,6 +87,57 @@ module.exports.drill_usageSummary = {
     }
 };
 
+module.exports.drill_coachReport = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "id_submission": {
+                "type": "string"
+            },
+            "player_first_name": {
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
+            },
+            "player_last_name": {
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
+            },
+            "drill": {
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
+            },
+            "first_glance_total_score": {
+                "type": "number"
+            },
+            "app": {
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
+            },
+            "device": {
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
+            },
+            "completion_timestamp_formatted": {
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
+            }
+        }
+    }
+};
+
 module.exports.activity = {
     "type": "object",
     "properties": {

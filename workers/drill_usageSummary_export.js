@@ -2,6 +2,7 @@ var moment = require("moment");
 const uuid = require("uuid/v4");
 const ExportApiWorker = require("../lib/ExportApiWorker")
 const schemas = require("../schemas");
+const DataRepository = require("./data/drill_usageSummary");
 // write csvs and upload to s3
 
 const c = "drill_calc";
@@ -60,42 +61,9 @@ class Task extends ExportApiWorker {
                 key = existing.s3_key;
             } else {
 
-                const header = {id_submission:1,team_name:1,player_first_name:1,player_last_name:1,drill:1,app:1,first_glance_total_score:1,completion_timestamp_formatted:1,device:1};
-                
-                const headerKeys = Object.keys(header);
+                let responses = await DataRepository.drill_usageSummary(data, db);
 
-
-
-
-
-                let query = {};
-
-                data.filters = data.filters || {};
-                query['drill_date_raw'] = {$ne:null};
-
-                if (data.filters.minDate) {
-                    Object.assign(query['drill_date_raw'], {$gt:new Date(data.filters.minDate)});
-                }
-
-                if (data.filters.maxDate) {
-                    Object.assign(query['drill_date_raw'], {$lt:new Date(data.filters.maxDate)});
-                }
-
-                var cursor = db.collection(c).find(query, {sort:{"drill_date_raw":-1} });
-                cursor.project(header);
-
-                var responses = await cursor.toArray();
-
-                responses = responses.map(r => {
-                    let shortDate = moment(r.completion_timestamp_formatted, 'MMMM Do YYYY, hh:mm:ss a').format('YYYY-MM-DD HH:mm:ss');
-                    delete r._id;
-                    return Object.assign({
-                    first_glance_total_score: r.first_glance_total_score || 0,
-                    completion_timestamp_formatted_short: shortDate
-                }, r);});
-
-
-                var ws = xlsx.utils.json_to_sheet(responses, {header: headerKeys});
+                var ws = xlsx.utils.json_to_sheet(responses, {header: DataRepository.headerKeys});
                 xlsx.utils.book_append_sheet(wb, ws, "Responses");
 
                 xlsx.writeFile(wb, `/tmp/${key}`);
