@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="gameSense Workers">
+    <serverData>
+      <paths name="gameSense Workers">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/bitnami" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

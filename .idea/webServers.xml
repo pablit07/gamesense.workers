@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="b6f0a254-9345-445e-8da9-78c060934abf" name="gameSense Workers" url="http://52.20.163.32">
+        <fileTransfer host="52.20.163.32" port="22" privateKey="$USER_HOME$/.ssh/85WyQ4UiEVqj.pem" accessType="SFTP" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
