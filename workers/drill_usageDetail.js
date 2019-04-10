@@ -1,15 +1,14 @@
 const MongoRmqApiWorker = require("../lib/MongoRmqApiWorker");
 const schemas = require("../schemas");
-const moment = require('moment');
-const DataRepository = require("./data/drill_usageSummary");
+const DataRepository = require("./data/drill_usageDetail");
 
 
-const c = "drill_calc";
+// {"paginate":true,"groupings":{"pitcher_name":"$pitcher_name","user_id":"$user_id"},"filters":{"user_id":10475}}
 
 class Task extends MongoRmqApiWorker {
 
 	getSchema() {
-		return schemas.drill_usageSummary;
+		return schemas.drill_usageDetail;
 	}
 
   	/*
@@ -19,9 +18,26 @@ class Task extends MongoRmqApiWorker {
 
 		try
 		{
-			var rows = await DataRepository.drill_usageSummary(data, db);
+			if (!data.authToken || !data.authToken.id || !data.authToken.app) {
+				throw Error("Must include authorization" + data.authToken.app);
+			}
+			data.filters = data.filters || {};
+			let user = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app});
+			if (!user) return [];
 
-			//console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + "." + c}`);
+			data.filters = data.filters || {};
+			data.filters.app = data.authToken.app;
+			if (user.team) {
+				data.filters.team = user.team;
+			}
+			data.filters.team = '';
+			data.groupings = {
+				pitcher_name: "$pitcher_name",
+				user_id: "$user_id",
+				correct_response_name: "$correct_response_name"
+			};
+
+			let rows = await DataRepository.drill_usageDetail(data, db);
 
 			ch.ack(msg);
 

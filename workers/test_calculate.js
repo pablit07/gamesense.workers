@@ -1,6 +1,5 @@
 var moment = require("moment");
 const uuid = require("uuid/v4");
-var sleep = require("sleep");
 var MongoRmqWorker = require("../lib/MongoRmqWorker");
 
 // calc single player scores
@@ -107,15 +106,9 @@ class Task extends MongoRmqWorker {
                         data.totalRowCount = await db.collection("test_usage").count({id_submission:msgContent.id_submission});
 
                         if (data.totalRowCount === 0) {
-                          retries++;
-                          if (retries > 10) {
-                            console.log("Killing message " + JSON.stringify(msgContent.id_submission));
-                            
-                          } else {
-                            console.log(`********* Warn: ids not available (yet?) for ${data.id_submission}, sleeping for 1 and retrying`);
-                            sleep.sleep(1);
-                          }
-                        
+                            this.publishError(msg, ch, "no_rows");
+                            ch.ack(msg);
+                            return;
                         }
                       }
                       if (data.totalRowCount === 0) { ch.ack(msg); }
@@ -151,10 +144,10 @@ class Task extends MongoRmqWorker {
                         if (rows_plus_2.some(r => r.type_score == null || r.location_score == null) ||
                             rows_plus_5.some(r => r.type_score == null || r.location_score == null) ||
                             rows_none.some(r => r.type_score == null || r.location_score == null)) {
-                                
-                                console.log(`********* Warn: some null scores exist for ${data.id_submission}, rejecting`);
-                                ch.reject(msg);
-                                return;
+
+                            this.publishError(msg, ch, "null_scores");
+                            ch.ack(msg);
+                            return;
                         }
                       
                         // occlusion scores
@@ -184,13 +177,13 @@ class Task extends MongoRmqWorker {
                         data.total_type_score = Math.round((data.occlusion_plus_5_type_score + data.occlusion_plus_2_type_score) / 2.0);
                         data.total_completely_correct_score = Math.round((data.occlusion_plus_5_completely_correct_score + data.occlusion_plus_2_completely_correct_score) / 2.0);
                         
-                        if (msgContent["timestamp"] !== undefined) {
+                        if (msgContent["timestamp"] != null) {
                           data.completion_timestamp = msgContent.timestamp;
                           data.completion_timestamp_formatted = moment(data.completion_timestamp).utcOffset(-6).format("MMMM Do YYYY, h:mm:ss a");
                         }
 
                         let player = {};
-                        if (msgContent["player"] !== undefined) {
+                        if (msgContent["player"] != null) {
                           player = msgContent.player;
                           player.player_id = data.player_id = `${player.jersey_number} ${player.first_name} ${player.last_name}`;
                         } else {

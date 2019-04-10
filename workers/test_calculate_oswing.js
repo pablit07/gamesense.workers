@@ -50,11 +50,11 @@ class Task extends MongoRmqApiWorker {
         }
 
         if (response.response_location === 2 && response.correct_response_location_id === 2) {
-          swingsAtBalls++;
+          swingsAtStrikes++;
         }
 
         if (response.correct_response_location_id === 2) {
-          totalBalls++;
+          totalStrikes++;
         }
       }
 

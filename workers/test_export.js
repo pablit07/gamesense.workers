@@ -187,9 +187,9 @@ class Task extends ExportApiWorker {
 
                 responses = await cursor.toArray();
 
-                let occlusion_none_type_avg = responses[0].occlusion_none_type_avg,
-                    occlusion_none_location_avg = responses[0].occlusion_none_location_avg,
-                    occlusion_none_completely_correct_avg = responses[0].occlusion_none_completely_correct_avg;
+                let occlusion_none_type_avg = responses.length ? responses[0].occlusion_none_type_avg : 0,
+                    occlusion_none_location_avg = responses.length ? responses[0].occlusion_none_location_avg : 0,
+                    occlusion_none_completely_correct_avg = responses.length ? responses[0].occlusion_none_completely_correct_avg : 0;
 
                 // clear out columns for writing to sheet
                 responses.forEach((r) => { 

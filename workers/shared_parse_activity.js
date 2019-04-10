@@ -34,8 +34,6 @@ class Task extends MongoRmqWorker {
     try {
 
       let result = {
-      time_video_started: 0,
-      time_answered: 0,
       app: ''
       };
 
@@ -77,7 +75,20 @@ class Task extends MongoRmqWorker {
       await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
       
       let combined = await db.collection('raw_usage_combined').findOne({id_submission:result.id_submission});
-      if (combined && combined.activity_name == 'Drill') {
+      if (combined && combined.activity_name == 'Hit Station') {
+        let headers, message;
+        switch (result.action_name) {
+          case 'Hit Station Final Score':
+            headers = {
+              routing_key: 'usage.action.hitstation.final_score'
+            };
+            message = Object.assign({}, combined, result);
+            message.id = result.id;
+            this.publish(message, headers, ch);
+            break;
+        }
+      }
+      else if (combined && combined.activity_name == 'Drill') {
         let headers, message;
         switch (result.action_name)
         {
@@ -86,6 +97,7 @@ class Task extends MongoRmqWorker {
               routing_key: 'usage.action.drill.question_response'
             };
             message = Object.assign({}, combined, result);
+            message.id = result.id;
             this.publish(message, headers, ch);
             break;
 
@@ -93,7 +105,9 @@ class Task extends MongoRmqWorker {
             headers = {
               routing_key: 'usage.action.drill.final_score'
             };
-            this.publish({app:result.app,id_submission:result.id_submission,timestamp:result.timestamp,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
+            message = Object.assign({}, combined, result);
+            message.id = result.id;
+            this.publish(message, headers, ch);
             break;
         }
       } else if (combined && combined.activity_name == 'Test') {
@@ -108,8 +122,17 @@ class Task extends MongoRmqWorker {
             };
             result.action_name = 'Test Response'
             message = Object.assign({}, combined, result);
-            console.log("Message: ", message);
+            message.id = result.id;
             this.publish(message, headers, ch);
+
+            // recalculate in case scores come in wrong order
+            let earlyFinalScore = await db.collection(c).findOne({id_submission:result.id_submission,action_name:'Test'});
+            if (earlyFinalScore) {
+                headers = {
+                  routing_key: 'usage.action.test.final_score'
+                };
+                this.publish({app:earlyFinalScore.app,id_submission:earlyFinalScore.id_submission,timestamp:earlyFinalScore.timestamp,player:earlyFinalScore.player,"Pitch Location Score":earlyFinalScore["Pitch Location Score"],"Pitch Type Score":earlyFinalScore["Pitch Location Score"],"Total Score":earlyFinalScore["Total Score"]}, headers, ch); 
+            }
             break;
 
           case 'Final Score':

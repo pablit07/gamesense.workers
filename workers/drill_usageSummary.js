@@ -19,9 +19,13 @@ class Task extends MongoRmqApiWorker {
 
 		try
 		{
-			var rows = await DataRepository.drill_usageSummary(data, db);
+			if (!data.authToken || !data.authToken.id || !data.authToken.app) {
+				throw Error("Must include authorization");
+			}
 
-			console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + "." + c}`);
+			let rows = await DataRepository.drill_usageSummary(data, db);
+
+			//console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + "." + c}`);
 
 			ch.ack(msg);
 

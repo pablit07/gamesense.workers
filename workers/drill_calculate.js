@@ -187,6 +187,7 @@ class Task extends MongoRmqWorker {
 
                         if (msgContent["timestamp"] !== undefined) {
                           data.completion_timestamp = msgContent.timestamp;
+                          data.completion_timestamp_raw = new Date(msgContent.timestamp);
                           data.completion_timestamp_formatted = moment(data.completion_timestamp).utcOffset(-6).format("MMMM Do YYYY, h:mm:ss a");
                         }
 

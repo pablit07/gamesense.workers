@@ -12,19 +12,37 @@ module.exports.test_usageSummary = {
                 "type": "string"
             },
             "source_etl": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             },
             "team": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             },
             "player_id": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             },
             "app": {
-                "type": "string"
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ]
             },
             "test_date": {
                 "type": "string"
+            },
+            "device": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
             }
         }
     }
@@ -317,3 +335,90 @@ module.exports.singlePlayer = {
 module.exports.test_export = {
     
 }
+
+module.exports.drill_usageDetail = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "type_score_percent": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "location_score_percent": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "completely_correct_score_percent": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "type_score": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "location_score": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "completely_correct_score": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "count": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "user_id": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "pitcher_name": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
+            "pitch": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
+            "id_submission": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
+            "correct_response_name": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
+            "time_answered": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
+        }
+    }
+};

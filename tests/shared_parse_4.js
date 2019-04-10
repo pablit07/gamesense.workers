@@ -42,7 +42,8 @@ let dataRow = {
 		    "objName": "pitch_type",
 		    "incorrect": false
 		  },
-		  "spent_time": 5.328526973724365
+		  "spent_time": 5.328526973724365,
+		  "player": {"test":"test"}
 		}`,
 		timestamp:'2018-07-17 07:06:39.582026-06',
 		object_id:37171,

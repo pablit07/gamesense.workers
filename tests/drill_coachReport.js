@@ -26,16 +26,21 @@ let Consumer = {},
   					}
           }
 				},
+        findOne: () => {
+          return {user_id:150,team:'gameSense Test Team'};
+        },
 				update: () => {},
 				updateMany: () => {},
-				count: () => { return 1; }
+				count: () => { return 1; },
+        insertOne: () => {}
 			}
 		}
 	},
 	data = {
-		filter: {}
+		filter: {},
+    authToken:{id:150}
 	},
-	msg = {},
+	msg = "",
 	conn = {},
 	ch = {
 		ack: () => {}

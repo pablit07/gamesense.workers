@@ -19,14 +19,15 @@ class Task extends MongoRmqApiWorker {
 
 		try
 		{
-			if (!data.user_id) {
-		      throw Error("Must include user_id");
+			if (!data.authToken || !data.authToken.id) {
+		      throw Error("Must include authorization");
 		    }
 
 			data.filters = data.filters || {};
-			data.filters.team_name = (await db.collection('users').findOne({id:data.user_id})).team;
-			
-			if (!data.filters.team_name) return [];
+			let user = await db.collection('users').findOne({id:data.authToken.id});
+			if (!user || !user.team) return [];
+
+			data.filters.team_name = user.team;
 
 			var rows = await DataRepository.drill_usageSummary(data, db, header => { delete header.team_name; return header });
 

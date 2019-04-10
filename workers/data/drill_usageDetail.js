@@ -1,27 +1,29 @@
 const moment = require('moment');
 
 
-const c = "drill_calc";
+const c = "drill_usage";
 const header = {id_submission:1,team_name:1,player_first_name:1,player_last_name:1,drill:1,app:1,first_glance_total_score:1,completion_timestamp_formatted:1,device:1};
 const headerKeys = Object.keys(header);
 
 
 function applyDataFormat(rows) {
 	return rows.map(r => {
-		    let shortDate = moment(r.completion_timestamp_formatted, 'MMMM Do YYYY, hh:mm:ss a').format('YYYY-MM-DD HH:mm:ss');
-		    delete r._id;
-		    return Object.assign({
-		    first_glance_total_score: r.first_glance_total_score || 0,
-		    completion_timestamp_formatted_short: shortDate
-		}, r);});
+		Object.assign(r, r._id);
+		r.type_score_percent = (r.type_score / r.count) * 100;
+		r.location_score_percent = (r.location_score / r.count) * 100;
+		r.completely_correct_score_percent = (r.completely_correct_score / r.count) * 100;
+		delete r._id;
+		return r;
+	});
 }
 
 
-async function drill_usageSummary(data, db, modifyHeader) {
+async function drill_usageDetail(data, db, modifyHeader) {
 
 	let query = {}, responses;
 
 	data.filters = data.filters || {};
+	data.groupings = data.groupings || {"id_submission": "$id_submission", "time_answered": "$time_answered", "pitch": "$pitch"};
 	query['drill_date_raw'] = {$ne:null};
 
 	if (data.filters.team_name) {
@@ -44,26 +46,38 @@ async function drill_usageSummary(data, db, modifyHeader) {
 	let cache;
 	if (data.filters.minDate && !data.paginate) {
 		let cacheQuery = {report: 'drill_usageSummary', minDate: new Date(data.filters.minDate), team_name: data.filters.team_name};
-		cache = await db.collection("drill_reports").findOne(cacheQuery, {sort:[['maxDate','desc']]});
+		cache = false;//await db.collection("drill_reports").findOne(cacheQuery, {sort:[['maxDate','desc']]});
 	}
 	if (cache) {
-		delete query['drill_date_raw']['$gte'];
-		query.completion_timestamp_raw = {$gte:cache.maxDate ? cache.maxDate : new Date(moment().format('YYYY-MM-DD HH:mm'))};
-
-		let updatedResponses = await db.collection(c).find(query, {sort:{"completion_timestamp":-1} }).project(modifyHeader(header)).toArray();
-
-		updatedResponses = applyDataFormat(updatedResponses);
-
-		responses = updatedResponses.concat(cache.responses);
-
-		db.collection('drill_reports').updateOne({_id: cache._id}, {$set: {minDate:new Date(data.filters.minDate), maxDate: data.filters.maxDate ? new Date(data.filters.maxDate) : new Date(moment().format('YYYY-MM-DD HH:mm')), responses: responses}});
-
-		if (data.paginate) {
-			responses = responses.slice(0,100);
-		}
+		// delete query['drill_date_raw']['$gte'];
+		// query.completion_timestamp_raw = {$gte:cache.maxDate ? cache.maxDate : new Date(moment().format('YYYY-MM-DD HH:mm'))};
+		//
+		// let updatedResponses = await db.collection(c).find(query, {sort:{"completion_timestamp":-1} }).project(modifyHeader(header)).toArray();
+		//
+		// updatedResponses = applyDataFormat(updatedResponses);
+		//
+		// responses = updatedResponses.concat(cache.responses);
+		//
+		// db.collection('drill_reports').updateOne({_id: cache._id}, {$set: {minDate:new Date(data.filters.minDate), maxDate: data.filters.maxDate ? new Date(data.filters.maxDate) : new Date(moment().format('YYYY-MM-DD HH:mm')), responses: responses}});
+		//
+		// if (data.paginate) {
+		// 	responses = responses.slice(0,100);
+		// }
 
 	} else {
-		let cursor = db.collection(c).find(query, {sort:{"completion_timestamp":-1} }).project(modifyHeader(header));
+		let cursor = db.collection(c).aggregate([
+			// {"$match": {"id_question": {$ne: null}}},
+			{"$match": data.filters },
+			{"$group" : {
+					"_id": {
+						...data.groupings
+					},
+					"type_score":{"$sum":"$type_score"},
+					"location_score":{"$sum":"$location_score"},
+					"completely_correct_score":{"$sum":"$completely_correct_score"},
+					"count": { "$sum": 1 }
+				} },
+			], { allowDiskUse: true });
 
 		if (data.paginate) {
 			cursor.limit(100);
@@ -74,7 +88,7 @@ async function drill_usageSummary(data, db, modifyHeader) {
 		responses = applyDataFormat(responses);
 
 		if (!data.paginate) {
-			await db.collection("drill_reports").insertOne({minDate:new Date(data.filters.minDate), maxDate:data.filters.maxDate ? new Date(data.filters.maxDate) : new Date(moment().format('YYYY-MM-DD HH:mm')), team_name: data.filters.team_name, report:'drill_usageSummary',responses:responses});
+			// await db.collection("drill_reports").insertOne({minDate:new Date(data.filters.minDate), maxDate:data.filters.maxDate ? new Date(data.filters.maxDate) : new Date(moment().format('YYYY-MM-DD HH:mm')), team_name: data.filters.team_name, report:'drill_usageSummary',responses:responses});
 		}
 	}
 
@@ -82,5 +96,5 @@ async function drill_usageSummary(data, db, modifyHeader) {
 }
 
 
-module.exports.drill_usageSummary = drill_usageSummary;
+module.exports.drill_usageDetail = drill_usageDetail;
 module.exports.headerKeys = headerKeys;

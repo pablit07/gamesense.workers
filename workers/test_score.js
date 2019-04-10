@@ -46,8 +46,7 @@ class Task extends MongoRmqWorker {
       };
 
       result.app = data.app = data.app.toUpperCase();
-
-      result.id = crypto.createHash("md5").update(`${data.app}${data.id}`).digest("hex");
+      result.id = data.id;
       result.id_submission = crypto.createHash("md5").update(`${data.app}${data.activity_id}`).digest("hex");
 
 
@@ -85,12 +84,13 @@ class Task extends MongoRmqWorker {
       // read question
 
       result.id_question = crypto.createHash("md5").update(`${data.app}${(data.question_id || data.Question__id)}`).digest("hex");
-      result.pitch = (data.Question__occluded_video__file || data.Question__occluded_video_file).replace(".mp4", "");
+      result.pitch = (data.Question__occluded_video__file || data.Question__occluded_video_file).replace(".mp4", "").replace("https://gamesense-videos.s3.amazonaws.com/", "");
       result.occlusion = ("R+" + result.pitch.substr(-1, 1)).replace(/R\+[abcdABCDO]/, "None").replace("+R", "");
       result.player_batting_hand = data.Question__batter_hand_value;
       result.pitcher_hand = data.Question__occluded_video__batter_hand;
       result.pitch_count = data.Question__occluded_video__pitch_count;
       result.pitcher_code = data.Question__occluded_video__pitcher_name;
+      result.device = data.user_device;
       
       let pitchParts = new RegExp("^([0-9])+.*").exec(result.pitch.replace(result.pitcher_code + "-", ""));
       if (pitchParts) {

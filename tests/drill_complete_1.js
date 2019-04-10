@@ -1,5 +1,5 @@
 
-var Worker = require('../workers/drill_score');
+var Worker = require('../workers/drill_complete');
 
 
 let Consumer = {},
