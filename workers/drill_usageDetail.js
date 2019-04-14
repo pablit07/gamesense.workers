@@ -5,6 +5,71 @@ const DataRepository = require("./data/drill_usageDetail");
 
 // {"paginate":true,"groupings":{"pitcher_name":"$pitcher_name","user_id":"$user_id"},"filters":{"user_id":10475}}
 
+function snakeToCamel(s){
+	return s.replace(/(_\w)/g, function(m){return m[1].toUpperCase();});
+}
+
+const keyPrefix = 'pitchType_';
+const groupDataByName = (data, keys, rollupField) => data.reduce((previousValue, currentValue, index) => {
+	let returnValue = previousValue;
+
+	if (currentValue.pitcher_name && currentValue.correct_response_name) {
+		let existingRow = returnValue.find(x => x.name === currentValue.pitcher_name && x[rollupField] === currentValue[snakeToCamel(rollupField)]);
+		if (existingRow) {
+			existingRow[keyPrefix + currentValue.correct_response_name] = Math.round(currentValue.type_score_percent);
+		} else {
+			let nameRow = {
+				name: currentValue.pitcher_name,
+				userId: currentValue.user_id,
+				playerFirstName: currentValue.player_first_name,
+				playerLastName: currentValue.player_last_name,
+				team: currentValue.team,
+				playerTeam: currentValue.team
+			};
+			keys.forEach(pt => nameRow[keyPrefix + pt] = '-');
+			nameRow[keyPrefix + currentValue.correct_response_name] = Math.round(currentValue.type_score_percent);
+			returnValue.push(nameRow);
+		}
+	}
+
+	return previousValue;
+}, []);
+
+const groupDataByKeys = data => Object.keys(data.reduce((previousValue, currentValue, index) => {
+	let returnValue = previousValue;
+
+	if (currentValue.pitcher_name && currentValue.correct_response_name) {
+		returnValue[currentValue.correct_response_name] = 1;
+	}
+
+	return returnValue;
+
+}, {}));
+
+
+const groupings = {
+	"singleUserPitcherResponse": {
+		key: "user_id",
+		value: {
+			pitcher_name: "$pitcher_name",
+			user_id: "$user_id",
+			correct_response_name: "$correct_response_name",
+			player_first_name: "$player_first_name",
+			player_last_name: "$player_last_name",
+			team: "$team"
+		}
+	},
+	"teamPitcherResponse": {
+		key: "team",
+		value: {
+			pitcher_name: "$pitcher_name",
+			team: "$team",
+			correct_response_name: "$correct_response_name"
+		}
+	}
+};
+
+
 class Task extends MongoRmqApiWorker {
 
 	getSchema() {
@@ -21,27 +86,45 @@ class Task extends MongoRmqApiWorker {
 			if (!data.authToken || !data.authToken.id || !data.authToken.app) {
 				throw Error("Must include authorization" + data.authToken.app);
 			}
+			data.rollUpType = data.rollUpType || "singleUserPitcherResponse";
 			data.filters = data.filters || {};
 			let user = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app});
 			if (!user) return [];
 
 			data.filters = data.filters || {};
 			data.filters.app = data.authToken.app;
-			if (user.team) {
-				data.filters.team = user.team;
+
+			if (!data.authToken.admin) {
+				// admin allowed to see all users
+				if (user.team) {
+					// team user allowed to see team
+					data.filters.team = user.team;
+				} else {
+					// indiv user only allowed to see self
+					data.filters.user_id = user.id;
+				}
 			}
-			data.filters.team = '';
-			data.groupings = {
-				pitcher_name: "$pitcher_name",
-				user_id: "$user_id",
-				correct_response_name: "$correct_response_name"
-			};
+
+			data.filters['time_answered'] = {$ne:null};
+
+			if (data.filters.minDate) {
+				Object.assign(data.filters['time_answered'], {$gte:new Date(data.filters.minDate)});
+				delete data.filters.minDate;
+			}
+
+			if (data.filters.maxDate) {
+				Object.assign(data.filters['time_answered'], {$lte:new Date(data.filters.maxDate)});
+				delete data.filters.maxDate;
+			}
+
+			data.groupings = groupings[data.rollUpType].value;
 
 			let rows = await DataRepository.drill_usageDetail(data, db);
 
 			ch.ack(msg);
 
-			return rows;
+			let keys = groupDataByKeys(rows);
+			return {rows: groupDataByName(rows, keys, groupings[data.rollUpType].key), keys: keys};
 		} catch (ex) {
 			console.error(ex);
 			ch.ack(msg);

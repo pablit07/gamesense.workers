@@ -337,88 +337,117 @@ module.exports.test_export = {
 }
 
 module.exports.drill_usageDetail = {
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "type_score_percent": {
-                "anyOf": [
-                    {"type": "number"},
-                    {"type": "null"}
-                ]
-            },
-            "location_score_percent": {
-                "anyOf": [
-                    {"type": "number"},
-                    {"type": "null"}
-                ]
-            },
-            "completely_correct_score_percent": {
-                "anyOf": [
-                    {"type": "number"},
-                    {"type": "null"}
-                ]
-            },
-            "type_score": {
-                "anyOf": [
-                    {"type": "number"},
-                    {"type": "null"}
-                ]
-            },
-            "location_score": {
-                "anyOf": [
-                    {"type": "number"},
-                    {"type": "null"}
-                ]
-            },
-            "completely_correct_score": {
-                "anyOf": [
-                    {"type": "number"},
-                    {"type": "null"}
-                ]
-            },
-            "count": {
-                "anyOf": [
-                    {"type": "number"},
-                    {"type": "null"}
-                ]
-            },
-            "user_id": {
-                "anyOf": [
-                    {"type": "number"},
-                    {"type": "null"}
-                ]
-            },
-            "pitcher_name": {
-                "anyOf": [
-                    {"type": "string"},
-                    {"type": "null"}
-                ]
-            },
-            "pitch": {
-                "anyOf": [
-                    {"type": "string"},
-                    {"type": "null"}
-                ]
-            },
-            "id_submission": {
-                "anyOf": [
-                    {"type": "string"},
-                    {"type": "null"}
-                ]
-            },
-            "correct_response_name": {
-                "anyOf": [
-                    {"type": "string"},
-                    {"type": "null"}
-                ]
-            },
-            "time_answered": {
-                "anyOf": [
-                    {"type": "string"},
-                    {"type": "null"}
-                ]
-            },
+    "type": "object",
+    "properties": {
+        "rows": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type_score_percent": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "location_score_percent": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "completely_correct_score_percent": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "type_score": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "location_score": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "completely_correct_score": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "count": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "user_id": {
+                        "anyOf": [
+                            {"type": "number"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "pitcher_name": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "pitch": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "id_submission": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "correct_response_name": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "time_answered": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "playerFirstName": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "playerLastName": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "null"}
+                        ]
+                    },
+                    "playerTeam": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "null"}
+                        ]
+                    },
+                }
+            }
+        },
+        "keys": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         }
     }
 };
