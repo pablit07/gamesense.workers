@@ -18,6 +18,10 @@ class Task extends MongoRmqWorker {
 
     try {
 
+      if (this.isClientRequested(data)) {
+        throw Error("Not authorized for client requests");
+      }
+
       let result = {
         occlusion_plus_5_completely_correct_score_q1: 0,
         occlusion_plus_5_completely_correct_score_median: 0,

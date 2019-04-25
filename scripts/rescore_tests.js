@@ -14,9 +14,11 @@ var MongoClient = require('mongodb').MongoClient;
 	let client = await MongoClient.connect(cs);
 	let db = await client.db("prod");
 
-	let toReprocess = await db.collection('test_calc').find({team:'Schoolcraft College'}, {id_submission:1}).toArray();
+	Publisher.publish({id_submission:'ada473c605c83f715e33841b90b105b4'}, 'usage', config.messageBroker.connectionString, Amqp, 'usage.action.test.final_score', {})
 
-	toReprocess.forEach( r => Publisher.publish({id_submission:r}, 'usage', config.messageBroker.connectionString, Amqp, 'usage.action.test.final_score', {}));
+	// let toReprocess = await db.collection('test_calc').find({team:'Schoolcraft College'}, {id_submission:1}).toArray();
+
+	// toReprocess.forEach( r => Publisher.publish({id_submission:'ada473c605c83f715e33841b90b105b4'}, 'usage', config.messageBroker.connectionString, Amqp, 'usage.action.test.final_score', {}));
 
     client.close();
 }());

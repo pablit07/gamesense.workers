@@ -256,7 +256,7 @@ class Task extends ExportApiWorker {
 
             return report;
         } catch (ex) {
-            console.error(ex);
+            this.logError(data, msg, ex);
             ch.ack(msg);
         }
     }

@@ -37,7 +37,7 @@ class Task extends MongoRmqApiWorker {
 
 			return rows;
 		} catch (ex) {
-			console.error(ex);
+			this.logError(data, msg, ex);
 			ch.ack(msg);
 		}
 	}

@@ -23,6 +23,11 @@ class Task extends MongoRmqApiWorker {
 				throw Error("Must include authorization");
 			}
 
+			if (!data.authToken.admin) {
+				data.filters.app = data.authToken.app;
+				data.filters.user_id = data.authToken.id;
+			}
+
 			let rows = await DataRepository.drill_usageSummary(data, db);
 
 			//console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + "." + c}`);
@@ -31,12 +36,10 @@ class Task extends MongoRmqApiWorker {
 
 			return rows;
 		} catch (ex) {
-			console.error(ex);
+			this.logError(data, msg, ex);
 			ch.ack(msg);
 		}
 	}
-
-
 }
 
 

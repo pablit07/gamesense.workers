@@ -22,6 +22,10 @@ class Task extends MongoRmqWorker {
   async myTask(msgContent, msg, conn, ch, db) {
                   try {
 
+                      if (this.isClientRequested(msgContent)) {
+                          throw Error("Not authorized for client requests");
+                      }
+
                       // ***** ETL Logic ******
                       
                       let data = {
@@ -204,8 +208,8 @@ class Task extends MongoRmqWorker {
 
 
                 } catch (ex) {
-                  console.log("Error: " + (ex.stack ? ex : ""));
-                  console.error(ex.stack || ex);
+                      this.logError(msgContent, msg, ex);
+                      ch.ack(msg);
                   // client.close();
                   // conn.close();
                 }

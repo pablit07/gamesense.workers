@@ -24,6 +24,10 @@ class Task extends MongoRmqWorker {
       throw Error("Must include an app label");
     }
 
+    if (this.isClientRequested(data)) {
+      throw Error("Not authorized for client requests");
+    }
+
     try {
 
       let result = {
@@ -45,8 +49,7 @@ class Task extends MongoRmqWorker {
 
       ch.ack(msg);
     } catch (ex) {
-      console.log("Error: " + (ex.stack ? ex : ""));
-      console.error(ex.stack || ex);
+      this.logError(data, msg, ex);
       // client.close();
       // conn.close();
     }

@@ -23,6 +23,16 @@ class Task extends ExportApiWorker {
     async myTask(data, msg, conn, ch, db) {
 
         try {
+
+            if (!data.authToken || !data.authToken.id || !data.authToken.app) {
+                throw Error("Must include authorization");
+            }
+
+            if (!data.authToken.admin) {
+                data.filters.app = data.authToken.app;
+                data.filters.user_id = data.authToken.id;
+            }
+
             const xlsx = this.xlsx,
                   s3 = this.s3,
                   s3Stream = this.s3Stream,
@@ -110,7 +120,7 @@ class Task extends ExportApiWorker {
 
             return report;
         } catch (ex) {
-            console.error(ex);
+            this.logError(data, msg, ex);
             ch.ack(msg);
         }
     }

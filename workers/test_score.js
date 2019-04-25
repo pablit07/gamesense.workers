@@ -30,6 +30,10 @@ class Task extends MongoRmqWorker {
       ch.ack(msg);
       throw Error("Must include an app label");
     }
+
+    if (this.isClientRequested(data)) {
+      throw Error("Not authorized for client requests");
+    }
     
     if (data.action_name != "Test Response") ch.ack(msg);
 
@@ -127,9 +131,8 @@ class Task extends MongoRmqWorker {
       // this.publish({id_submission:data.id_submission}, "test.calculate_old");
       ch.ack(msg);
     } catch (ex) {
-      console.log("Error: " + (ex.stack ? ex : ""));
-      console.error(ex.stack || ex);
-      ch.reject(msg);
+      this.logError(data, msg, ex);
+      ch.ack(msg);
       // client.close();
       // conn.close();
     }

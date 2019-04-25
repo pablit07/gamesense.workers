@@ -10,11 +10,11 @@ function snakeToCamel(s){
 }
 
 const keyPrefix = 'pitchType_';
-const groupDataByName = (data, keys, rollupField) => data.reduce((previousValue, currentValue, index) => {
+const groupDataByName = (data, keys, rollupField = false) => data.reduce((previousValue, currentValue, index) => {
 	let returnValue = previousValue;
 
 	if (currentValue.pitcher_name && currentValue.correct_response_name) {
-		let existingRow = returnValue.find(x => x.name === currentValue.pitcher_name && x[rollupField] === currentValue[snakeToCamel(rollupField)]);
+		let existingRow = returnValue.find(x => x.name === currentValue.pitcher_name && (!rollupField || x[rollupField] === currentValue[snakeToCamel(rollupField)]));
 		if (existingRow) {
 			existingRow[keyPrefix + currentValue.correct_response_name] = Math.round(currentValue.type_score_percent);
 		} else {
@@ -23,9 +23,11 @@ const groupDataByName = (data, keys, rollupField) => data.reduce((previousValue,
 				userId: currentValue.user_id,
 				playerFirstName: currentValue.player_first_name,
 				playerLastName: currentValue.player_last_name,
+				// yes these are redundant
 				team: currentValue.team,
 				playerTeam: currentValue.team
 			};
+			// add a default value
 			keys.forEach(pt => nameRow[keyPrefix + pt] = '-');
 			nameRow[keyPrefix + currentValue.correct_response_name] = Math.round(currentValue.type_score_percent);
 			returnValue.push(nameRow);
@@ -48,7 +50,7 @@ const groupDataByKeys = data => Object.keys(data.reduce((previousValue, currentV
 
 
 const groupings = {
-	"singleUserPitcherResponse": {
+	"singleUserPitcherResponseType": {
 		key: "user_id",
 		value: {
 			pitcher_name: "$pitcher_name",
@@ -59,12 +61,45 @@ const groupings = {
 			team: "$team"
 		}
 	},
-	"teamPitcherResponse": {
+	"singleUserPitcherResponseLocation": {
+		key: "user_id",
+		value: {
+			pitcher_name: "$pitcher_name",
+			user_id: "$user_id",
+			correct_response_name: "$correct_response_location_name",
+			player_first_name: "$player_first_name",
+			player_last_name: "$player_last_name",
+			team: "$team"
+		}
+	},
+	"teamPitcherResponseType": {
 		key: "team",
 		value: {
 			pitcher_name: "$pitcher_name",
 			team: "$team",
 			correct_response_name: "$correct_response_name"
+		}
+	},
+	"teamPitcherResponseLocation": {
+		key: "team",
+		value: {
+			pitcher_name: "$pitcher_name",
+			team: "$team",
+			correct_response_name: "$correct_response_location_name"
+		}
+	},
+	"globalPitcherResponseType": {
+		key: false,
+		value: {
+			pitcher_name: "$pitcher_name",
+			correct_response_name: "$correct_response_name"
+		}
+	},
+	"globalPitcherResponseLocation": {
+		key: false,
+		value: {
+			pitcher_name: "$pitcher_name",
+			correct_response_name: "$correct_response_location_name"
 		}
 	}
 };
@@ -84,25 +119,28 @@ class Task extends MongoRmqApiWorker {
 		try
 		{
 			if (!data.authToken || !data.authToken.id || !data.authToken.app) {
-				throw Error("Must include authorization" + data.authToken.app);
+				throw Error("Must include authorization");
 			}
-			data.rollUpType = data.rollUpType || "singleUserPitcherResponse";
+			data.rollUpType = data.rollUpType || "singleUserPitcherResponseType";
 			data.filters = data.filters || {};
 			let user = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app});
 			if (!user) return [];
 
 			data.filters = data.filters || {};
-			data.filters.app = data.authToken.app;
 
 			if (!data.authToken.admin) {
-				// admin allowed to see all users
-				if (user.team) {
-					// team user allowed to see team
-					data.filters.team = user.team;
-				} else {
-					// indiv user only allowed to see self
-					data.filters.user_id = user.id;
+				data.filters.app = data.authToken.app;
+				if (!data.rollUpType.startsWith('global')) {
+					if (user.team) {
+						// team user allowed to see team
+						data.filters.team = user.team;
+					} else {
+						// indiv user only allowed to see self
+						data.filters.user_id = user.id;
+					}
 				}
+			} else { // admin allowed to see all users
+					data.filters.app = data.authToken.app;
 			}
 
 			data.filters['time_answered'] = {$ne:null};
@@ -126,7 +164,7 @@ class Task extends MongoRmqApiWorker {
 			let keys = groupDataByKeys(rows);
 			return {rows: groupDataByName(rows, keys, groupings[data.rollUpType].key), keys: keys};
 		} catch (ex) {
-			console.error(ex);
+			this.logError(data, msg, ex);
 			ch.ack(msg);
 		}
 	}

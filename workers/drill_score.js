@@ -95,7 +95,11 @@ class Task extends MongoRmqWorker {
   */
   async myTask(data, msg, conn, ch, db) {
 
-    if (!data.app) throw Error("Must include an app label")
+    if (!data.app) throw Error("Must include an app label");
+
+    if (this.isClientRequested(data)) {
+      throw Error("Not authorized for client requests");
+    }
 
     const c = this._collection;
 
@@ -155,8 +159,7 @@ class Task extends MongoRmqWorker {
       ch.ack(msg);
     } catch (ex) {
       ch.reject(msg);
-      console.log("Error: " + (ex.stack ? ex : ""));
-      console.error(ex.stack || ex);
+      this.logError(data, msg, ex);
     }
   }
 }
