@@ -451,3 +451,38 @@ module.exports.drill_usageDetail = {
         }
     }
 };
+
+module.exports.drill_completionSummary = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "count": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            }, "user_id": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            }, "month": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            }, "year": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            }, "date": {
+                "anyOf": [
+                    {"type": "date"},
+                    {"type": "null"}
+                ]
+            }
+        }
+    }
+}

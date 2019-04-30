@@ -6,19 +6,7 @@ const header = {id_submission:1,team_name:1,player_first_name:1,player_last_name
 const headerKeys = Object.keys(header);
 
 
-function applyDataFormat(rows) {
-	return rows.map(r => {
-		Object.assign(r, r._id);
-		r.type_score_percent = (r.type_score / r.count) * 100;
-		r.location_score_percent = (r.location_score / r.count) * 100;
-		r.completely_correct_score_percent = (r.completely_correct_score / r.count) * 100;
-		delete r._id;
-		return r;
-	});
-}
-
-
-async function drill_usageDetail(data, db, modifyHeader) {
+async function drill_usageDetail(data, db, modifyHeader, applyDataFormat=x=>x) {
 
 	let query = {}, responses;
 
@@ -66,15 +54,12 @@ async function drill_usageDetail(data, db, modifyHeader) {
 
 	} else {
 		let cursor = db.collection(c).aggregate([
-			// {"$match": {"id_question": {$ne: null}}},
 			{"$match": data.filters },
 			{"$group" : {
 					"_id": {
 						...data.groupings
 					},
-					"type_score":{"$sum":"$type_score"},
-					"location_score":{"$sum":"$location_score"},
-					"completely_correct_score":{"$sum":"$completely_correct_score"},
+					...data.projection,
 					"count": { "$sum": 1 }
 				} },
 			], { allowDiskUse: true });

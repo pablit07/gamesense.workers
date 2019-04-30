@@ -49,6 +49,18 @@ const groupDataByKeys = data => Object.keys(data.reduce((previousValue, currentV
 }, {}));
 
 
+const applyDataFormat = rows => {
+	return rows.map(r => {
+		Object.assign(r, r._id);
+		r.type_score_percent = (r.type_score / r.count) * 100;
+		r.location_score_percent = (r.location_score / r.count) * 100;
+		r.completely_correct_score_percent = (r.completely_correct_score / r.count) * 100;
+		delete r._id;
+		return r;
+	});
+}
+
+
 const groupings = {
 	"singleUserPitcherResponseType": {
 		key: "user_id",
@@ -156,8 +168,13 @@ class Task extends MongoRmqApiWorker {
 			}
 
 			data.groupings = groupings[data.rollUpType].value;
+			data.projection = {
+				"type_score": {"$sum": "$type_score"},
+				"location_score": {"$sum": "$location_score"},
+				"completely_correct_score": {"$sum": "$completely_correct_score"}
+			};
 
-			let rows = await DataRepository.drill_usageDetail(data, db);
+			let rows = await DataRepository.drill_usageDetail(data, db, null, applyDataFormat);
 
 			ch.ack(msg);
 
