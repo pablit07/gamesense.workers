@@ -62,6 +62,7 @@ async function drill_usageDetail(data, db, modifyHeader, applyDataFormat=x=>x) {
 					...data.projection,
 					"count": { "$sum": 1 }
 				} },
+			{"$sort": {_id: 1}}
 			], { allowDiskUse: true });
 
 		if (data.paginate) {

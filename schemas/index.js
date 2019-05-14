@@ -482,7 +482,13 @@ module.exports.drill_completionSummary = {
                     {"type": "date"},
                     {"type": "null"}
                 ]
+            }, "date_format": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
             }
+
         }
     }
 }

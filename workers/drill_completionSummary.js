@@ -1,13 +1,55 @@
 const MongoRmqApiWorker = require("../lib/MongoRmqApiWorker");
 const schemas = require("../schemas");
 const DataRepository = require("./data/drill_usageDetail");
+const moment = require('moment');
 
 
 const applyDataFormat = rows => {
 	return rows.map(r => {
 		Object.assign(r, r._id);
-		r.date = new Date(r.year, r.month - 1)
+		if (r.week) {
+			r.date = new Date(moment(`${r.year}W${("00"+(r.week+1)).slice(-2)}`));
+		} else {
+			r.date = new Date(r.year, (r.month || 1) - 1, r.day || 0);
+		}
 		delete r._id;
+		return r;
+	});
+}
+
+const groupings = {
+	"yearly": {
+		user_id: "$user_id",
+		year: {$year: "$drill_date_raw"},
+	},
+	"monthly": {
+		user_id: "$user_id",
+		month: {$month: "$drill_date_raw"},
+		year: {$year: "$drill_date_raw"},
+	},
+	"weekly": {
+		user_id: "$user_id",
+		week: {$week: "$drill_date_raw"},
+		year: {$year: "$drill_date_raw"},
+	},
+	"daily": {
+		user_id: "$user_id",
+		day: {$day: "$drill_date_raw"},
+		month: {$month: "$drill_date_raw"},
+		year: {$year: "$drill_date_raw"},
+	}
+};
+
+const formats = {
+	"yearly": o => `${o.year}`,
+	"monthly": o => `${o.month}-${o.year}`,
+	"weekly": o => `${o.week}w ${o.year}`,
+	"daily": o => `${o.month}-${o.day}-${o.year}`
+};
+
+function getApplyDataFormat(rollUpType) {
+	return rows => applyDataFormat(rows).map(r => {
+		r.date_format = formats[rollUpType](r);
 		return r;
 	});
 }
@@ -37,6 +79,10 @@ class Task extends MongoRmqApiWorker {
 
 			data.filters['time_answered'] = {$ne:null};
 			data.filters['drill_date_raw'] = {$ne:null};
+			if (!data.authToken.admin) {
+				data.filters.user_id = data.filters.user_id || data.authToken.id;
+				data.filters.app = data.filters.user_id || data.authToken.app;
+			}
 
 			if (data.filters.minDate) {
 				Object.assign(data.filters['time_answered'], {$gte:new Date(data.filters.minDate)});
@@ -48,13 +94,20 @@ class Task extends MongoRmqApiWorker {
 				delete data.filters.maxDate;
 			}
 
-			data.groupings = {
-				user_id: "$user_id",
-				month: {$month: "$drill_date_raw"},
-				year: {$year: "$drill_date_raw"},
-			};
+			let rows = {};
+			if (Array.isArray(data.rollUpType)) {
+				await data.rollUpType.forEach(async rut => {
+					data.groupings = groupings[rut];
+					rows[rut] = await DataRepository.drill_usageDetail(data, db, null, getApplyDataFormat(rut));
+				});
+			} else {
+				let rut = data.rollUpType || "monthly";
+				data.groupings = groupings[rut];
+				if (data.authToken.admin) delete data.groupings['user_id'];
+				rows = await DataRepository.drill_usageDetail(data, db, null, getApplyDataFormat(rut));
 
-			let rows = await DataRepository.drill_usageDetail(data, db, null, applyDataFormat);
+			}
+
 
 			ch.ack(msg);
 

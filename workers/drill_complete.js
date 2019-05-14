@@ -1,3 +1,5 @@
+import expandQuestionData from "./util/expandQuestionData";
+
 const uuid = require("uuid/v4");
 var moment = require("moment");
 var schemas = require("../schemas");
@@ -40,20 +42,7 @@ class Task extends MongoRmqWorker {
             data.id_worker = this.consumer.uuidForCurrentExecution;
             data.id_submission = msgContent.id_submission;
 
-            data.team = msgContent.team;
-            data.team_name = msgContent.team;
-            data.team_id = msgContent.team_id;
-            data.user_id = msgContent.user_id;
-            data.player_first_name = msgContent.player_first_name;
-            data.player_last_name = msgContent.player_last_name;
-            data.player_id = msgContent.player_id;
-            data.drill_date = msgContent.time_video_started_formatted.split(",")[0];
-            data.drill_date_raw = moment(data.drill_date, "MMMM Do YYYY").toDate();
-            data.player_batting_hand = msgContent.player_batting_hand;
-            data.drill = msgContent.drill;
-            data.device = msgContent.device;
-            data.pitcher_name = msgContent.pitcher_name;
-            data.difficulty = msgContent.difficulty;
+            data = await expandQuestionData(msgContent, data, db);
 
             if (msgContent["Total Score"] !== undefined) {
                 data.first_glance_location_score = msgContent["Pitch Location Score"];
@@ -63,12 +52,6 @@ class Task extends MongoRmqWorker {
 
             if (msgContent.activity_name === 'Hit Station') {
                 data.is_hitstation = true;
-            }
-
-            if (msgContent["timestamp"] !== undefined) {
-                data.completion_timestamp = msgContent.timestamp;
-                data.completion_timestamp_raw = new Date(msgContent.timestamp);
-                data.completion_timestamp_formatted = moment(data.completion_timestamp).utcOffset(-6).format("MMMM Do YYYY, h:mm:ss a");
             }
 
             console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + "." + c}`);

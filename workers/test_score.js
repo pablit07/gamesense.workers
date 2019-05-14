@@ -91,7 +91,7 @@ class Task extends MongoRmqWorker {
       result.pitch = (data.Question__occluded_video__file || data.Question__occluded_video_file).replace(".mp4", "").replace("https://gamesense-videos.s3.amazonaws.com/", "");
       result.occlusion = ("R+" + result.pitch.substr(-1, 1)).replace(/R\+[abcdABCDO]/, "None").replace("+R", "");
       result.player_batting_hand = data.Question__batter_hand_value;
-      result.pitcher_hand = data.Question__occluded_video__batter_hand;
+      result.pitcher_hand = data.Question__occluded_video__pitcher_hand;
       result.pitch_count = data.Question__occluded_video__pitch_count;
       result.pitcher_code = data.Question__occluded_video__pitcher_name;
       result.device = data.user_device;
