@@ -1,5 +1,4 @@
-import expandQuestionData from "./util/expandQuestionData";
-
+const expandQuestionData = require("./util/expandQuestionData");
 const uuid = require("uuid/v4");
 var moment = require("moment");
 var schemas = require("../schemas");

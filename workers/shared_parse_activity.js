@@ -68,8 +68,11 @@ class Task extends MongoRmqWorker {
       result.id_worker = this.consumer.uuidForCurrentExecution;
 
       // time
-
-      if (data.timestamp) {
+      if (actionValue.timestamp) {
+        result.timestamp_formatted = moment(actionValue.timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
+        result.timestamp = new Date(moment(actionValue.timestamp).format());
+      }
+      else if (data.timestamp) {
         result.timestamp_formatted = moment(data.timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
         result.timestamp = new Date(moment(data.timestamp).format());
       }

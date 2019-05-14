@@ -1,3 +1,6 @@
+var crypto = require("crypto");
+var moment = require("moment");
+
 function toTitleCase(str) {
     return str.replace(
         /\w\S*/g,
@@ -10,7 +13,7 @@ function toTitleCase(str) {
 
 
 
-export default async function expandQuestionData(data, result, db) {
+async function expandQuestionData(data, result, db) {
 // time
 
     if (data.timestamp) {
@@ -43,17 +46,21 @@ export default async function expandQuestionData(data, result, db) {
     // read question
 
     result.id_question = crypto.createHash("md5").update(`${data.app}${(data.question_id || data.Question__id)}`).digest("hex");
-    result.pitch = (data.Question__occluded_video__file || data.Question__occluded_video_file).replace(".mp4", "").replace("https://gamesense-videos.s3.amazonaws.com/", "");
-    result.occlusion = ('R+' + result.pitch.substr(-1, 1)).replace(/R\+[abcdABCDO]/, 'None').replace('+R', '');
-    result.player_batting_hand = data.Question__batter_hand_value;
-    result.pitcher_hand = data.Question__occluded_video__pitcher_hand;
-    result.pitch_count = data.Question__occluded_video__pitch_count;
-    result.pitcher_code = data.Question__occluded_video__pitcher_name;
-    let pitchParts = new RegExp("^([0-9])+.*").exec(result.pitch.replace(result.pitcher_code + '-', ''));
-    if (pitchParts) {
-        result.pitch_number = pitchParts[1];
-        result.pitcher_is_flipped = new RegExp("^[bd].*").test(result.pitch.replace(result.pitch_number).substr(0, 1));
+    let pitchParts;
+    if (data.Question__occluded_video__file || data.Question__occluded_video_file) {
+        result.pitch = (data.Question__occluded_video__file || data.Question__occluded_video_file).replace(".mp4", "").replace("https://gamesense-videos.s3.amazonaws.com/", "");
+        result.occlusion = ('R+' + result.pitch.substr(-1, 1)).replace(/R\+[abcdABCDO]/, 'None').replace('+R', '');
+        result.player_batting_hand = data.Question__batter_hand_value;
+        result.pitcher_hand = data.Question__occluded_video__pitcher_hand;
+        result.pitch_count = data.Question__occluded_video__pitch_count;
+        result.pitcher_code = data.Question__occluded_video__pitcher_name;
+        pitchParts = new RegExp("^([0-9])+.*").exec(result.pitch.replace(result.pitcher_code + '-', ''));
+        if (pitchParts) {
+            result.pitch_number = pitchParts[1];
+            result.pitcher_is_flipped = new RegExp("^[bd].*").test(result.pitch.replace(result.pitch_number).substr(0, 1));
+        }
     }
+
     let titleParts;
     if (data.activity_value) {
         result.drill = data.activity_value;
@@ -72,3 +79,5 @@ export default async function expandQuestionData(data, result, db) {
 
     return result;
 }
+
+module.exports = expandQuestionData;

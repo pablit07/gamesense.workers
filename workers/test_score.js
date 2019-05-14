@@ -1,5 +1,4 @@
-import expandQuestionData from "./util/expandQuestionData";
-
+const expandQuestionData = require("./util/expandQuestionData");
 var crypto = require("crypto");
 var moment = require("moment");
 var schemas = require("../schemas");
