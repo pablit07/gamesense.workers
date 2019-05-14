@@ -52,6 +52,7 @@ class Task extends MongoRmqWorker {
       try {
         actionValue = typeof(data.action_value) == 'string' ? JSON.parse(data.action_value) : data.action_value;
       } catch (ex) {
+        this.logError(data, msg, ex);
         console.error("Invalid JSON");
         ch.ack(msg);
         return;

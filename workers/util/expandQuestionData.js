@@ -42,8 +42,8 @@ export default async function expandQuestionData(data, result, db) {
 
     // read question
 
-    result.id_question = crypto.createHash('md5').update(`${data.app}${data.question_id}`).digest("hex");
-    result.pitch = data.Question__occluded_video_file.replace('.mp4', '');
+    result.id_question = crypto.createHash("md5").update(`${data.app}${(data.question_id || data.Question__id)}`).digest("hex");
+    result.pitch = (data.Question__occluded_video__file || data.Question__occluded_video_file).replace(".mp4", "").replace("https://gamesense-videos.s3.amazonaws.com/", "");
     result.occlusion = ('R+' + result.pitch.substr(-1, 1)).replace(/R\+[abcdABCDO]/, 'None').replace('+R', '');
     result.player_batting_hand = data.Question__batter_hand_value;
     result.pitcher_hand = data.Question__occluded_video__pitcher_hand;
