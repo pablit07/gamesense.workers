@@ -73,7 +73,10 @@ class Task extends MongoRmqApiWorker {
 
 			data.filters = data.filters || {};
 			let user = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app});
-			if (!user) return [];
+			if (!user) {
+				ch.ack(msg);
+				return [];
+			}
 
 			data.filters = data.filters || {};
 
@@ -81,7 +84,7 @@ class Task extends MongoRmqApiWorker {
 			data.filters['drill_date_raw'] = {$ne:null};
 			if (!data.authToken.admin) {
 				data.filters.user_id = data.filters.user_id || data.authToken.id;
-				data.filters.app = data.filters.user_id || data.authToken.app;
+				data.filters.app = data.filters.app || data.authToken.app;
 			}
 
 			if (data.filters.minDate) {

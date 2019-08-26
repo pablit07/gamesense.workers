@@ -37,6 +37,25 @@ class Task extends MongoRmqWorker {
                 total_completely_correct_score: 0
             };
 
+            let row = await db.collection("drill_usage").findOne({id_submission: msgContent.id_submission});
+
+            data.player_batting_hand = row.player_batting_hand;
+            data.drill = row.drill;
+            data.device = row.device;
+            data.pitcher_name = row.pitcher_name;
+            data.pitcher_hand = row.pitcher_hand;
+            data.pitch_count = row.pitch_count;
+            data.pitcher_code = row.pitcher_code;
+            data.pitch_number = row.pitch_number;
+            data.difficulty = row.difficulty;
+            data.team = row.team;
+            data.team_name = row.team;
+            data.team_id = row.team_id;
+            data.user_id = row.user_id;
+            data.player_first_name = row.player_first_name;
+            data.player_last_name = row.player_last_name;
+            data.player_id = row.player_id;
+
             data.processed_worker = moment().format();
             data.id_worker = this.consumer.uuidForCurrentExecution;
             data.id_submission = msgContent.id_submission;

@@ -1,6 +1,6 @@
 const MongoRmqApiWorker = require("../lib/MongoRmqApiWorker");
 const schemas = require("../schemas");
-const DataRepository = require("./data/drill_usageDetail");
+const DataRepository = require("./data/test_usageDetail");
 
 
 // {"paginate":true,"groupings":{"pitcher_name":"$pitcher_name","user_id":"$user_id"},"filters":{"user_id":10475}}
@@ -62,58 +62,16 @@ const applyDataFormat = rows => {
 
 
 const groupings = {
-	"singleUserPitcherResponseType": {
+	"singleUserFirstGlanceScore": {
 		key: "user_id",
 		value: {
-			pitcher_name: "$pitcher_name",
 			user_id: "$user_id",
-			correct_response_name: "$correct_response_name",
 			player_first_name: "$player_first_name",
 			player_last_name: "$player_last_name",
-			team: "$team"
-		}
-	},
-	"singleUserPitcherResponseLocation": {
-		key: "user_id",
-		value: {
-			pitcher_name: "$pitcher_name",
-			user_id: "$user_id",
-			correct_response_name: "$correct_response_location_name",
-			player_first_name: "$player_first_name",
-			player_last_name: "$player_last_name",
-			team: "$team"
-		}
-	},
-	"teamPitcherResponseType": {
-		key: "team",
-		value: {
-			pitcher_name: "$pitcher_name",
 			team: "$team",
-			correct_response_name: "$correct_response_name"
+
 		}
 	},
-	"teamPitcherResponseLocation": {
-		key: "team",
-		value: {
-			pitcher_name: "$pitcher_name",
-			team: "$team",
-			correct_response_name: "$correct_response_location_name"
-		}
-	},
-	"globalPitcherResponseType": {
-		key: false,
-		value: {
-			pitcher_name: "$pitcher_name",
-			correct_response_name: "$correct_response_name"
-		}
-	},
-	"globalPitcherResponseLocation": {
-		key: false,
-		value: {
-			pitcher_name: "$pitcher_name",
-			correct_response_name: "$correct_response_location_name"
-		}
-	}
 };
 
 
@@ -133,7 +91,7 @@ class Task extends MongoRmqApiWorker {
 			if (!data.authToken || !data.authToken.id || !data.authToken.app) {
 				throw Error("Must include authorization");
 			}
-			data.rollUpType = data.rollUpType || "singleUserPitcherResponseType";
+			data.rollUpType = data.rollUpType || "singleUserFirstGlanceScore";
 			data.filters = data.filters || {};
 			let user = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app});
 			if (!user) {
@@ -170,19 +128,8 @@ class Task extends MongoRmqApiWorker {
 				delete data.filters.maxDate;
 			}
 
-			data.groupings = groupings[data.rollUpType].value;
-			data.projection = {
-				"type_score": {"$sum": "$type_score"},
-				"location_score": {"$sum": "$location_score"},
-				"completely_correct_score": {"$sum": "$completely_correct_score"}
-			};
-
-			let rows = await DataRepository.drill_usageDetail(data, db, null, applyDataFormat);
-
 			ch.ack(msg);
 
-			let keys = groupDataByKeys(rows);
-			return {rows: groupDataByName(rows, keys, groupings[data.rollUpType].key), keys: keys};
 		} catch (ex) {
 			this.logError(data, msg, ex);
 			ch.ack(msg);

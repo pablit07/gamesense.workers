@@ -23,6 +23,9 @@ async function expandQuestionData(data, result, db) {
     result.time_video_started = new Date(moment(data.timestamp).subtract(data.spent_time, 'seconds').format());
     result.time_video_started_formatted = moment(result.time_video_started).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
     result.time_spent = data.spent_time;
+    result.drill_date = result.time_video_started_formatted.split(",")[0];
+    result.drill_date_raw = moment(result.drill_date, "MMMM Do YYYY").toDate();
+
     result.device = data.user_device || "Web Browser";
     result.os = data.user_platform_os || "Unknown";
 

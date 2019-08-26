@@ -79,7 +79,9 @@ class Task extends MongoRmqWorker {
             //       
       console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + "." + c}`);
       let query = {id_submission:result.id_submission,id_question:result.id_question};
-      let doc = await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true, returnOriginal:false});
+      let {player_id, player_first_name, player_last_name } = result;
+      delete result['player_id']; delete result['player_first_name']; delete result['player_last_name'];
+      let doc = await db.collection(c).findOneAndUpdate(query, {$set: result, $setOnInsert: {player_id, player_first_name, player_last_name}}, {upsert:true, returnOriginal:false});
       doc = doc.value;
       if (doc.type_score !== undefined && doc.location_score !== undefined) {
         let completely_correct_score = (doc.type_score && doc.location_score) ? 1 : 0;

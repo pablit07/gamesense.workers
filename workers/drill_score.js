@@ -61,12 +61,12 @@ class Task extends MongoRmqWorker {
 
       if (data.Response__objName == 'pitch_location') {
         result.correct_response_location_name = locations[data.Question__occluded_video__pitch_location];
-        result.response_location_name = data.Response__name;
+        result.response_location_name = data.Response__name || locations[data.Response__id];
         result.response_location = data.Response__id;
         result.correct_response_location_id = data.Question__occluded_video__pitch_location;
         result.location_score = (result.correct_response_location_id === result.response_location) ? 1 : 0;
       } else {
-        result.response_name = data.Response__name;
+        result.response_name = data.Response__name || pitchtypes[data.Response__id];
         result.response_id = data.Response__id;
         result.correct_response_id = data.Question__occluded_video__pitch_type;
         result.correct_response_name = pitchtypes[data.Question__occluded_video__pitch_type];
@@ -77,10 +77,14 @@ class Task extends MongoRmqWorker {
       console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
       let query = {id_submission:result.id_submission,id_question:result.id_question};
       // handle if same question appeared multiple times
-      if (data.Response__objName == 'pitch_location') {
-        query.correct_response_location_id = null;
+      if (!result.time_spent) {
+        if (data.Response__objName == 'pitch_location') {
+          query.correct_response_location_id = null;
+        } else {
+          query.correct_response_id = null;
+        }
       } else {
-        query.correct_response_id = null;
+        query.time_spent = result.time_spent;
       }
       let doc = await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true, returnOriginal:false});
       doc = doc.value;

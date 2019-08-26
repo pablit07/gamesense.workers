@@ -1,6 +1,7 @@
 var moment = require('moment');
 var schemas = require('../schemas');
 var MongoRmqWorker = require('../lib/MongoRmqWorker');
+var flatten = require('flat');
 
 
 const c = 'users';
@@ -43,8 +44,15 @@ class Task extends MongoRmqWorker {
       result.id_worker = this.consumer.uuidForCurrentExecution;
 
       let query = {id:result.id,app:result.app};
+      let cookie = result['request_cookies'];
+      delete result['request_cookies'];
+
       await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
-      
+
+      Object.assign(result, {timestamp:moment().toDate()}, cookie ? flatten(cookie, {delimiter: '__'}) : {});
+
+      await db.collection(c + '_registration').findOneAndUpdate(query, {$set: result}, {upsert:true});
+
       console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
 
       ch.ack(msg);

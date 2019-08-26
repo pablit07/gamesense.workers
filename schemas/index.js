@@ -1,5 +1,39 @@
 // may be helpful: https://www.jsonschema.net/
 
+
+module.exports.test_calcSummary = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "id_submission": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
+            "first_glance_location_score": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "first_glance_type_score": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "first_glance_total_score": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+        }
+    }
+};
+
 module.exports.test_usageSummary = {
     "type": "array",
     "items": {
@@ -81,7 +115,10 @@ module.exports.drill_usageSummary = {
                 ]
             },
             "first_glance_total_score": {
-                "type": "number"
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "number"}
+                ]
             },
             "app": {
                 "anyOf": [
@@ -491,4 +528,25 @@ module.exports.drill_completionSummary = {
 
         }
     }
-}
+};
+
+module.exports.drill_streakSummary = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "days": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            },
+            "count": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            }
+        }
+    }
+};

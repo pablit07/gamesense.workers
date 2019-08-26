@@ -26,16 +26,16 @@ class Task extends MongoRmqWorker {
   async myTask(data, msg, conn, ch, db) {
 
 
-    if (!data.app) {
-      ch.ack(msg);
-      throw Error("Must include an app label");
-    }
-
-    if (this.isClientRequested(data)) {
-      throw Error("Not authorized for client requests");
-    }
-
     try {
+
+      if (!data.app) {
+        ch.ack(msg);
+        throw Error("Must include an app label");
+      }
+
+      if (this.isClientRequested(data)) {
+        throw Error("Not authorized for client requests");
+      }
 
       let result = {
       app: ''
@@ -139,7 +139,7 @@ class Task extends MongoRmqWorker {
                 headers = {
                   routing_key: 'usage.action.test.final_score'
                 };
-                this.publish({app:earlyFinalScore.app,id_submission:earlyFinalScore.id_submission,timestamp:earlyFinalScore.timestamp,player:earlyFinalScore.player,"Pitch Location Score":earlyFinalScore["Pitch Location Score"],"Pitch Type Score":earlyFinalScore["Pitch Location Score"],"Total Score":earlyFinalScore["Total Score"]}, headers, ch); 
+                this.publish({app:earlyFinalScore.app,id_submission:earlyFinalScore.id_submission,timestamp:earlyFinalScore.timestamp,player:earlyFinalScore.player,"Pitch Location Score":earlyFinalScore["Pitch Location Score"],"Pitch Type Score":earlyFinalScore["Pitch Type Score"],"Total Score":earlyFinalScore["Total Score"]}, headers, ch);
             }
             break;
 
@@ -148,7 +148,7 @@ class Task extends MongoRmqWorker {
             headers = {
               routing_key: 'usage.action.test.final_score'
             };
-            this.publish({app:result.app,id_submission:result.id_submission,timestamp:result.timestamp,player:result.player,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Location Score"],"Total Score":result["Total Score"]}, headers, ch); 
+            this.publish({app:result.app,id_submission:result.id_submission,timestamp:result.timestamp,player:result.player,"Pitch Location Score":result["Pitch Location Score"],"Pitch Type Score":result["Pitch Type Score"],"Total Score":result["Total Score"]}, headers, ch);
             break;
 
         }
@@ -160,6 +160,7 @@ class Task extends MongoRmqWorker {
       ch.ack(msg);
     } catch (ex) {
       this.logError(data, msg, ex);
+      ch.ack(msg);
       // console.log("Error: " + (ex.stack ? ex : ""));
       // console.error(ex.stack || ex);
       // client.close();

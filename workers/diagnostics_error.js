@@ -11,6 +11,9 @@ class Task extends Worker {
         this.usage_action_test_final_score_no_rows = this.action_test_final_score_no_rows;
         this.usage_action_test_final_score_null_scores = this.action_test_final_score_null_scores;
 
+        this.usage_action_drill_final_score_no_rows = this.action_test_final_score_no_rows;
+        this.usage_action_drill_final_score_null_scores = this.action_test_final_score_null_scores;
+
     }
 
     myTask(msgContent, msg, conn, ch) {
@@ -22,7 +25,7 @@ class Task extends Worker {
             this[errorHandler](msgContent, msg, ch);
 
         } else {
-            ch.nack(msg);
+            ch.ack(msg);
             throw Error("Undefined error handler! " + errorHandler);
         }
     }
@@ -52,6 +55,21 @@ class Task extends Worker {
             this.publish(msgContent, headers, ch, 'dead_letter');
             ch.ack(msg);
 
+        } else if (headers.retries === 5) {
+            let responses = db.collection('raw_usage').find({action_name: 'Question Response', id_submission: msgContent.id_submission});
+
+            responses.forEach( async response => {
+                try {
+                    // TODO add msgContent
+                    Publisher.publish(response, 'usage', config.messageBroker.connectionString, Amqp, 'usage.action.drill.question_response', {});
+                } catch (ex) {
+                    console.error(ex)
+                }
+            });
+            headers.retries++;
+            this.publish(msgContent, headers, ch, 'usage');
+            ch.ack(msg);
+            sleep.msleep(1);
         } else {
             console.log(`********* Warn: some null scores exist for ${msgContent.id_submission}, rejecting`);
             headers.retries = headers.retries || 0;
