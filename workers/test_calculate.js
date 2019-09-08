@@ -169,57 +169,56 @@ class Task extends MongoRmqWorker {
                       data.team = rows[0].team;
                       data.test_date = rows[0].time_video_started_formatted.split(",")[0];
                       data.test_date_raw = new Date(data.test_date.replace(/(\d+)st|nd|rd|th/, "$1").replace(/^(\w{3})\w*\s/, "$1 "));
+
+                      let updateSet = {
+                          ...player,
+                          team: data.team,
+                          test_date: data.test_date,
+                          test_date_raw: data.test_date_raw,
+                          completion_timestamp: data.completion_timestamp,
+                          total_location_score: data.total_location_score,
+                          total_type_score: data.total_type_score,
+                          total_completely_correct_score: data.total_completely_correct_score,
+                          occlusion_plus_2_location_score: data.occlusion_plus_2_location_score,
+                          occlusion_plus_2_location_avg: data.occlusion_plus_2_location_avg,
+                          occlusion_plus_2_type_score: data.occlusion_plus_2_type_score,
+                          occlusion_plus_2_type_avg: data.occlusion_plus_2_type_avg,
+                          occlusion_plus_2_completely_correct_score: data.occlusion_plus_2_completely_correct_score,
+                          occlusion_plus_2_completely_correct_avg: data.occlusion_plus_2_completely_correct_avg,
+                          occlusion_none_location_score: data.occlusion_none_location_score,
+                          occlusion_none_location_avg: data.occlusion_none_location_avg,
+                          occlusion_none_type_score: data.occlusion_none_type_score,
+                          occlusion_none_type_avg: data.occlusion_none_type_avg,
+                          occlusion_none_completely_correct_score: data.occlusion_none_completely_correct_score,
+                          occlusion_none_completely_correct_avg: data.occlusion_none_completely_correct_avg,
+                          occlusion_plus_5_location_score: data.occlusion_plus_5_location_score,
+                          occlusion_plus_5_location_avg: data.occlusion_plus_5_location_avg,
+                          occlusion_plus_5_type_score: data.occlusion_plus_5_type_score,
+                          occlusion_plus_5_type_avg: data.occlusion_plus_5_type_avg,
+                          occlusion_plus_5_completely_correct_score: data.occlusion_plus_5_completely_correct_score,
+                          occlusion_plus_5_completely_correct_avg: data.occlusion_plus_5_completely_correct_avg,
+                          occlusion_plus_2_plus_5_type_avg: data.occlusion_plus_2_plus_5_type_avg,
+                          occlusion_plus_2_plus_5_location_avg: data.occlusion_plus_2_plus_5_location_avg,
+                          occlusion_plus_2_plus_5_completely_correct_avg: data.occlusion_plus_2_plus_5_completely_correct_avg
+                      };
+
                       if (data.total_completely_correct_score) {
-                          data.prs = Math.round(data.total_completely_correct_score) - 100;
+                          updateSet.prs = data.prs = Math.round(data.total_completely_correct_score) - 100;
                       }
                       if (msgContent["Total Score"] !== undefined) {
-                          data.first_glance_location_score = msgContent["Pitch Location Score"];
-                          data.first_glance_type_score = msgContent["Pitch Type Score"];
-                          data.first_glance_total_score = msgContent["Total Score"];
+                          updateSet.first_glance_location_score = data.first_glance_location_score = msgContent["Pitch Location Score"];
+                          updateSet.first_glance_type_score = data.first_glance_type_score = msgContent["Pitch Type Score"];
+                          updateSet.first_glance_total_score = data.first_glance_total_score = msgContent["Total Score"];
                       }
                       db.collection("test_usage").updateMany(query, {
-                          $set: {
-                              ...player,
-                              team: data.team,
-                              test_date: data.test_date,
-                              test_date_raw: data.test_date_raw,
-                              completion_timestamp: data.completion_timestamp,
-                              total_location_score: data.total_location_score,
-                              total_type_score: data.total_type_score,
-                              total_completely_correct_score: data.total_completely_correct_score,
-                              occlusion_plus_2_location_score: data.occlusion_plus_2_location_score,
-                              occlusion_plus_2_location_avg: data.occlusion_plus_2_location_avg,
-                              occlusion_plus_2_type_score: data.occlusion_plus_2_type_score,
-                              occlusion_plus_2_type_avg: data.occlusion_plus_2_type_avg,
-                              occlusion_plus_2_completely_correct_score: data.occlusion_plus_2_completely_correct_score,
-                              occlusion_plus_2_completely_correct_avg: data.occlusion_plus_2_completely_correct_avg,
-                              occlusion_none_location_score: data.occlusion_none_location_score,
-                              occlusion_none_location_avg: data.occlusion_none_location_avg,
-                              occlusion_none_type_score: data.occlusion_none_type_score,
-                              occlusion_none_type_avg: data.occlusion_none_type_avg,
-                              occlusion_none_completely_correct_score: data.occlusion_none_completely_correct_score,
-                              occlusion_none_completely_correct_avg: data.occlusion_none_completely_correct_avg,
-                              occlusion_plus_5_location_score: data.occlusion_plus_5_location_score,
-                              occlusion_plus_5_location_avg: data.occlusion_plus_5_location_avg,
-                              occlusion_plus_5_type_score: data.occlusion_plus_5_type_score,
-                              occlusion_plus_5_type_avg: data.occlusion_plus_5_type_avg,
-                              occlusion_plus_5_completely_correct_score: data.occlusion_plus_5_completely_correct_score,
-                              occlusion_plus_5_completely_correct_avg: data.occlusion_plus_5_completely_correct_avg,
-                              occlusion_plus_2_plus_5_type_avg: data.occlusion_plus_2_plus_5_type_avg,
-                              occlusion_plus_2_plus_5_location_avg: data.occlusion_plus_2_plus_5_location_avg,
-                              occlusion_plus_2_plus_5_completely_correct_avg: data.occlusion_plus_2_plus_5_completely_correct_avg,
-                              prs: data.prs,
-                              first_glance_location_score: data.first_glance_location_score,
-                              first_glance_type_score: data.first_glance_type_score,
-                              first_glance_total_score: data.first_glance_total_score
-                          }
+                          $set: updateSet
                       });
                       console.log(` [x] Wrote ${JSON.stringify(data)} to ${this.DbName + "." + c}`);
 
-                      db.collection(c).update({
+                      db.collection(c).updateOne({
                           id_submission: msgContent.id_submission,
                           scoringAlgorithm: data.scoringAlgorithm
-                      }, data, {upsert: true});
+                      }, {$set:data}, {upsert: true});
                       ch.ack(msg);
 
 
