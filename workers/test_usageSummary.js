@@ -29,7 +29,7 @@ class Task extends MongoRmqApiWorker {
 				query['$lte'] = new Date(data.filters.maxDate);
 			}
 
-			var rows = await db.collection('test_usage').aggregate([{
+			let rows = await db.collection('test_usage').aggregate([{
 				$group: {
 					_id: {
 						'id_submission': '$id_submission',
@@ -37,13 +37,17 @@ class Task extends MongoRmqApiWorker {
 						'team': '$team',
 						'app': '$app',
 						'player_id': '$player_id',
-						'device': '$device'
+						'device': '$device',
 					},
 					test_date: {$first: '$time_video_started'},
-					number_of_responses: {$sum: 1}
+					number_of_responses: {$sum: 1},
+					type_scores: {$push: '$type_score'},
+					location_scores: {$push: '$location_score'},
+					completely_correct_scores: {$push: '$completely_correct_score'},
+					total_completely_correct_scores: {$push: '$total_completely_correct_score'}
 				},
 			}, {$match: {'test_date': query}},
-				{$sort: {"test_date": -1}}]).toArray();
+				{$sort: {"test_date": -1}}], { allowDiskUse: true }).toArray();
 
 			console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + '.' + c}`);
 
@@ -57,6 +61,10 @@ class Task extends MongoRmqApiWorker {
 				source_etl: (x.source_etl || ""),
 				app: (x.app || ""),
 				number_of_responses: (x.number_of_responses || 0),
+				type_scores: (x.type_scores || []).length,
+				location_scores: (x.location_scores || []).length,
+				completely_correct_scores: (x.completely_correct_scores || []).length,
+				total_completely_correct_scores: (x.total_completely_correct_scores || []).length,
 				test_date: (x.test_date ? moment(x.test_date).utcOffset(-6).format('MMMM Do YYYY') : null)
 			}, x._id));
 		} catch (ex) {

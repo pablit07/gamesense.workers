@@ -36,8 +36,6 @@ class Task extends MongoRmqWorker {
       throw Error("Not authorized for client requests");
     }
     
-    if (data.action_name != "Test Response") ch.ack(msg);
-
     const c = this._collection;
 
     try {
@@ -85,7 +83,7 @@ class Task extends MongoRmqWorker {
       doc = doc.value;
       if (doc.type_score !== undefined && doc.location_score !== undefined) {
         let completely_correct_score = (doc.type_score && doc.location_score) ? 1 : 0;
-        db.collection(c).update({id:result.id}, {$set: {completely_correct_score: completely_correct_score}});
+        db.collection(c).updateMany({id:result.id}, {$set:{completely_correct_score: completely_correct_score}});
       }
 
       // this.publish({id_submission:data.id_submission}, "test.calculate_old");

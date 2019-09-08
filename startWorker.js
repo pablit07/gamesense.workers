@@ -37,7 +37,7 @@ class App {
 
 			// start worker processes for each queue
 				
-			proc = this.getWorker(this.name, queue.maxThreads || 0);
+			proc = this.getWorker(this.name, {maxThreads:(queue.maxThreads || 0), autoDelete:(queue.autoDelete || false)});
 			proc.run();
 
 		} catch (ex) {
@@ -45,7 +45,7 @@ class App {
 		}
 	}
 
-	getWorker(name, maxThreads) {
+	getWorker(name, {maxThreads, autoDelete}) {
 		try {
 			let WorkerClass = Worker.get(name);
 			if (!WorkerClass) {
@@ -54,6 +54,7 @@ class App {
 			let worker = new WorkerClass(Consumer, Publisher, Amqp, this.config);
 			worker.q = name.replace("_", ".");
 			worker.maxThreads = maxThreads;
+			worker.autoDelete = autoDelete;
 			return worker;
 		} catch (ex) {
 			console.error(ex);

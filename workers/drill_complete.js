@@ -37,7 +37,18 @@ class Task extends MongoRmqWorker {
                 total_completely_correct_score: 0
             };
 
+            data.processed_worker = moment().format();
+            data.id_worker = this.consumer.uuidForCurrentExecution;
+            data.id_submission = msgContent.id_submission;
+
+            data = await expandQuestionData(msgContent, data, db);
+
             let row = await db.collection("drill_usage").findOne({id_submission: msgContent.id_submission});
+            if (!row) {
+                // DONT publish error because we have parallel queues - TODO find a way to detect this condition?
+                ch.ack(msg);
+                return;
+            }
 
             data.player_batting_hand = row.player_batting_hand;
             data.drill = row.drill;
@@ -55,12 +66,6 @@ class Task extends MongoRmqWorker {
             data.player_first_name = row.player_first_name;
             data.player_last_name = row.player_last_name;
             data.player_id = row.player_id;
-
-            data.processed_worker = moment().format();
-            data.id_worker = this.consumer.uuidForCurrentExecution;
-            data.id_submission = msgContent.id_submission;
-
-            data = await expandQuestionData(msgContent, data, db);
 
             if (msgContent["Total Score"] !== undefined) {
                 data.first_glance_location_score = msgContent["Pitch Location Score"];

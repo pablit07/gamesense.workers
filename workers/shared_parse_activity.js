@@ -79,10 +79,22 @@ class Task extends MongoRmqWorker {
       
       let query = {id_submission:result.id_submission};
 
-      query.id = result.id
+      query.id = result.id;
       await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
-      
+
+      if (result.action_name == 'Created Complete') {
+        let headers, message;
+        headers = {
+          routing_key: 'financials.braintree.subscription.created'
+        };
+        message = result;
+        this.publish(message, headers, ch, 'financials');
+        ch.ack(msg);
+        return;
+      }
+
       let combined = await db.collection('raw_usage_combined').findOne({id_submission:result.id_submission});
+
       if (combined && combined.activity_name == 'Hit Station') {
         let headers, message;
         switch (result.action_name) {

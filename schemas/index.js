@@ -77,7 +77,19 @@ module.exports.test_usageSummary = {
                     {"type": "string"},
                     {"type": "null"}
                 ]
-            }
+            },
+            "type_scores": {
+                "type": "number"
+            },
+            "location_scores": {
+                "type": "number"
+            },
+            "completely_correct_scores": {
+                "type": "number"
+            },
+            "total_completely_correct_scores": {
+                "type": "number"
+            },
         }
     }
 };

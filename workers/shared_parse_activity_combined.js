@@ -39,7 +39,6 @@ class Task extends MongoRmqWorker {
 
       result.app = data.app = data.app.toUpperCase();
 
-      result.id = crypto.createHash('md5').update(`${data.app}${data.id}`).digest("hex");
       result.id_submission = crypto.createHash('md5').update(`${data.app}${data.activity_id}`).digest("hex");
 
       // ***** ETL Logic ******
