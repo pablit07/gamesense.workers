@@ -49,9 +49,10 @@ class Task extends MongoRmqWorker {
 
       await db.collection(c).findOneAndUpdate(query, {$set: result}, {upsert:true});
 
-      Object.assign(result, {timestamp:moment().toDate()}, cookie ? flatten(cookie, {delimiter: '__'}) : {});
-
-      await db.collection(c + '_registration').findOneAndUpdate(query, {$set: result}, {upsert:true});
+      if (cookie && cookie != '') {
+        Object.assign(result, {timestamp:moment().toDate()}, flatten(cookie, {delimiter: '__'}));
+        await db.collection(c + '_registration').findOneAndUpdate(query, {$set: result}, {upsert: true});
+      }
 
       console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
 

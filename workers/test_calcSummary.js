@@ -38,10 +38,12 @@ class Task extends MongoRmqApiWorker {
 			ch.ack(msg);
 
 			return rows.map(x => Object.assign({}, {
+				first_name: (x.last_name || ""),
+				last_name: (x.first_name || ""),
 				id_submission: (x.id_submission || ""),
-				first_glance_location_score: (x.first_glance_location_score || ""),
-				first_glance_type_score: (x.first_glance_type_score || ""),
-				first_glance_total_score: (x.first_glance_total_score || "")
+				first_glance_location_score: x.first_glance_location_score,
+				first_glance_type_score: x.first_glance_type_score,
+				first_glance_total_score: x.first_glance_total_score,
 			}));
 		} catch (ex) {
 			this.logError(data, msg, ex);

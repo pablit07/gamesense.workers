@@ -160,10 +160,17 @@ class Task extends MongoRmqWorker {
                       if (msgContent["player"] != null) {
                           player = msgContent.player;
                           player.player_id = data.player_id = `${player.jersey_number} ${player.first_name} ${player.last_name}`;
+                          data.player_first_name = player.first_name;
+                          data.player_last_name = player.last_name;
                       } else if (rows[0].first_name && rows[0].last_name && rows[0].jersey_number) {
+                          // this is for the manual entry textbox in the app
                           player.player_id = `${rows[0].jersey_number} ${rows[0].first_name} ${rows[0].last_name}`;
+                          data.player_first_name = rows[0].first_name;
+                          data.player_last_name = rows[0].last_name;
                       } else {
                           player.player_id = data.player_id = rows[0].player_id;
+                          data.player_first_name = rows[0].player_first_name;
+                          data.player_last_name = rows[0].player_last_name;
                       }
                       console.log('  [x]  Using player_id ' + player.player_id);
                       data.team = rows[0].team;

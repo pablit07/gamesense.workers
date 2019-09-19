@@ -12,6 +12,18 @@ module.exports.test_calcSummary = {
                     {"type": "null"}
                 ]
             },
+            "player_first_name": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
+            "player_last_name": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
             "first_glance_location_score": {
                 "anyOf": [
                     {"type": "number"},

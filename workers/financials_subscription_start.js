@@ -51,20 +51,13 @@ class Task extends MongoRmqWorker {
 
       result.CustomSegment1 = data.app = data.app.toUpperCase();
 
-      // let keys = await db.collection('secrets').findOne({name:'braintree'});
-      //
-      // const gateway = braintree.connect({
-      //   environment: braintree.Environment.Production,
-      //   merchantId: keys.merchantId,
-      //   publicKey: keys.publicKey,
-      //   privateKey: keys.privateKey
-      // });
+      let keys = await db.collection('secrets').findOne({name:'braintree'});
 
       const gateway = braintree.connect({
         environment: braintree.Environment.Production,
-        merchantId: "7x4mz84xc9jdgsz9",
-        publicKey: "phdsn3c6ns57hwxk",
-        privateKey: "35f0609fe6fac05c192918eb8b565b3d"
+        merchantId: keys.merchantId,
+        publicKey: keys.publicKey,
+        privateKey: keys.privateKey
       });
 
       let subscription = await gateway.subscription.find(data.subscription_id);
