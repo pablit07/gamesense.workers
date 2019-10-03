@@ -45,62 +45,48 @@ class Task extends Worker {
             let headers = msg.properties.headers;
             headers.retries = headers.retries || 0;
             headers.retries++;
-            this.publish(msgContent, headers, ch, 'usage');
-            ch.ack(msg);
+            if (exchange !== 'error') {
+                headers.routing_key = headers.routing_key.replace('error.', '');
+                msg.fields.routingKey = msg.fields.routingKey.replace('error.', '');
+            }
+            headers.routing_key = headers.routing_key.replace('.no_rows', '');
+            msg.fields.routingKey = msg.fields.routingKey.replace('.no_rows', '');
+            this.publishDelayed(msg, ch, headers, msgContent, 'usage');
         }
     }
 
     action_test_final_score_null_scores(msgContent, msg, ch) {
         let headers = msg.properties.headers;
-        headers.routing_key = headers.routing_key.replace('diagnostics.delay.', '');
-        console.log(msg);
         if (headers.retries > 10) {
             console.log("Killing message " + JSON.stringify(msgContent.id_submission));
             this.publish(msgContent, headers, ch, 'dead_letter');
             ch.ack(msg);
 
-        } else if (headers.retries === 5) {
-            // let responses = db.collection('raw_usage').find({action_name: 'Question Response', id_submission: msgContent.id_submission});
-            //
-            // responses.forEach( async response => {
-            //     try {
-            //         // TODO add msgContent
-            //         Publisher.publish(response, headers.service, config.messageBroker.connectionString, Amqp, 'usage.action.test.question_response', {});
-            //     } catch (ex) {
-            //         console.error(ex)
-            //     }
-            // });
-            const reprocessWorker = new ReprocessWorker(msgContent.id_submission);
-            reprocessWorker.runOnce();
-            headers.retries++;
-            let delayQ = 'diagnostics.delay.' + msg.fields.routingKey;
-            ch.assertQueue(delayQ, {arguments:
-                    {
-                // set the dead-letter exchange to the default queue
-                'x-dead-letter-exchange': 'error',
-                // when the message expires, set change the routing key into the destination queue name
-                'x-dead-letter-routing-key': msg.fields.routingKey,
-                // the time in milliseconds to keep the message in the queue
-                'x-message-ttl': 10000}
-            }, () => {
-                ch.bindQueue(delayQ, 'delay', delayQ, {}, () => {
-                    headers.routing_key = delayQ;
-                    this.publish(msgContent, headers, ch, 'delay');
-                    ch.ack(msg);
-                });
-            });
-
-            // ch.ack(msg);
-
-
-            sleep.msleep(1);
         } else {
-            console.log(`********* Warn: some null scores exist for ${msgContent.id_submission}, rejecting`);
-            headers.retries = headers.retries || 0;
-            headers.retries++;
-            this.publish(msgContent, headers, ch, headers.service);
-            ch.ack(msg);
-            sleep.msleep(1);
+            if (headers.retries === 5) {
+                const reprocessWorker = new ReprocessWorker(msgContent.id_submission);
+                reprocessWorker.runOnce();
+                headers.retries++;
+                this.publishDelayed(msg, ch, headers, msgContent, 'error');
+
+                sleep.msleep(1);
+            } else {
+                console.log(`********* Warn: some null scores exist for ${msgContent.id_submission}, rejecting`);
+                headers.retries = headers.retries || 0;
+                headers.retries++;
+                let exchange = headers.service;
+                if (!exchange) {
+                    exchange = headers.routing_key.split('.')[0];
+                }
+                if (exchange !== 'error') {
+                    headers.routing_key = headers.routing_key.replace('error.', '');
+                    msg.fields.routingKey = msg.fields.routingKey.replace('error.', '');
+                }
+                headers.routing_key = headers.routing_key.replace('.null_scores', '');
+                msg.fields.routingKey = msg.fields.routingKey.replace('.null_scores', '');
+                this.publishDelayed(msg, ch, headers, msgContent, exchange);
+                sleep.msleep(1);
+            }
         }
     }
 

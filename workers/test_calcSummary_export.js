@@ -71,13 +71,15 @@ class Task extends ExportApiWorker {
                 key = existing.s3_key;
             } else {
 
-                var rows = await db.collection(c).find({
-                    'id_submission': data.filters.id_submission
-                }).toArray();
+                var rows = await db.collection(c).aggregate([
+                    {$match: {'id_submission': {$in: data.filters.id_submissions}}},
+                    {$addFields: {"__order": {$indexOfArray: [data.filters.id_submissions, "$id_submission" ]}}},
+                    {$sort: {"__order": 1}}
+                ]).toArray();
 
                 let responses = rows.map(x => Object.assign({}, {
-                    "First Name": (x.player_last_name || ""),
-                    "Last Name": (x.player_first_name || ""),
+                    "First Name": (x.player_first_name || ""),
+                    "Last Name": (x.player_last_name || ""),
                     "Pitch Type": x.first_glance_type_score,
                     "Ball/Strike": x.first_glance_location_score,
                     "PR Score": x.first_glance_total_score,

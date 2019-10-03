@@ -57,6 +57,7 @@ class Task extends MongoRmqWorker {
                 existingStreak.endDate = result.endDate;
                 existingStreak.processed_worker = result.processed_worker;
                 existingStreak.id_worker = result.id_worker;
+                delete existingStreak._id;
                 await db.collection(c).updateOne({
                     startDate: result.startDate,
                     user_id: result.user_id,
@@ -74,6 +75,7 @@ class Task extends MongoRmqWorker {
                     existingStreak.responses += 1;
                     existingStreak.processed_worker = result.processed_worker;
                     existingStreak.id_worker = result.id_worker;
+                    delete existingStreak._id;
                     await db.collection(c).updateOne({
                         startDate: result.startDate,
                         user_id: result.user_id,
@@ -93,6 +95,7 @@ class Task extends MongoRmqWorker {
                     });
                     if (sameDayStreak) {
                         sameDayStreak.responses += 1;
+                        delete sameDayStreak._id;
                         await db.collection(c).updateOne({
                             startDate: result.startDate,
                             user_id: result.user_id,

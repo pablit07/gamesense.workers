@@ -42,6 +42,12 @@ module.exports.test_calcSummary = {
                     {"type": "null"}
                 ]
             },
+            "activity_id": {
+                "anyOf": [
+                    {"type": "number"},
+                    {"type": "null"}
+                ]
+            }
         }
     }
 };

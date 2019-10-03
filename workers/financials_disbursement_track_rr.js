@@ -1,7 +1,7 @@
 const moment = require('moment');
 const MongoRmqWorker = require('../lib/MongoRmqWorker');
 const braintree = require("braintree");
-const https = require('https');
+const request = require('request');
 
 
 class Task extends MongoRmqWorker {
@@ -40,26 +40,22 @@ class Task extends MongoRmqWorker {
       const projectId = 'P53wSFUi';
 
       const track = postData => {
-        let post = JSON.stringify(postData);
+        let dataString = JSON.stringify(postData);
         let options = {
-          hostname: 'track.attributionappp.com',
-          port: 443,
-          path: '/track',
+          url: 'https://track.attributionapp.com/track',
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': post.length,
-            'Authorization': `Basic ${projectId}`
+          body: dataString,
+          auth: {
+            'user': projectId,
+            'pass': ''
           }
         };
 
-        let req = https.request(options, res => {
-          console.log('statusCode', res.statusCode);
-          res.on('data', d => console.log(d));
-        });
+        function callback(error, response, body) {
+            console.log(body);
+        }
 
-        req.write(post);
-        req.end();
+        request(options, callback);
       };
 
       if (data.transaction_ids) {
@@ -74,7 +70,7 @@ class Task extends MongoRmqWorker {
               let postData = {
                 user_id: `${user.app}${user.id}`,
                 event: 'Credit Card Charged',
-                properties: {revenue: transaction.price}
+                properties: {revenue: transaction.amount}
               };
               track(postData);
             }

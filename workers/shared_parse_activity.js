@@ -69,8 +69,8 @@ class Task extends MongoRmqWorker {
 
       // time
       if (actionValue.timestamp) {
-        result.timestamp_formatted = moment(actionValue.timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
-        result.timestamp = new Date(moment(actionValue.timestamp).format());
+        result.timestamp_formatted = moment(actionValue.timestamp, 'YYYY-MM-Do h:mm:ss.SSSSSS').utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
+        result.timestamp = new Date(moment(actionValue.timestamp, 'YYYY-MM-Do h:mm:ss.SSSSSS').format());
       }
       else if (data.timestamp) {
         result.timestamp_formatted = moment(data.timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');

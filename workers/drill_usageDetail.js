@@ -10,11 +10,11 @@ function snakeToCamel(s){
 }
 
 const keyPrefix = 'pitchType_';
-const groupDataByName = (data, keys, rollupField = false) => data.reduce((previousValue, currentValue, index) => {
+const groupData = (data, keys, rollupField = false, groupField = {in:'pitcher_name',out:'name'}, secondaryGroupField = false) => data.reduce((previousValue, currentValue, index) => {
 	let returnValue = previousValue;
 
-	if (currentValue.pitcher_name && currentValue.correct_response_name) {
-		let existingRow = returnValue.find(x => x.name === currentValue.pitcher_name && (!rollupField || x[rollupField] === currentValue[snakeToCamel(rollupField)]));
+	if (currentValue.correct_response_name) {
+		let existingRow = returnValue.find(x => x[groupField.out] === currentValue[groupField.in] && (!rollupField || x[rollupField] === currentValue[snakeToCamel(rollupField)]));
 		if (existingRow) {
 			existingRow[keyPrefix + currentValue.correct_response_name] = Math.round(currentValue.type_score_percent);
 		} else {
@@ -40,7 +40,7 @@ const groupDataByName = (data, keys, rollupField = false) => data.reduce((previo
 const groupDataByKeys = data => Object.keys(data.reduce((previousValue, currentValue, index) => {
 	let returnValue = previousValue;
 
-	if (currentValue.pitcher_name && currentValue.correct_response_name) {
+	if (currentValue.correct_response_name) {
 		returnValue[currentValue.correct_response_name] = 1;
 	}
 
@@ -64,6 +64,7 @@ const applyDataFormat = rows => {
 const groupings = {
 	"singleUserPitcherResponseType": {
 		key: "user_id",
+		group: {in: 'pitcher_name', out: 'name'},
 		value: {
 			pitcher_name: "$pitcher_name",
 			user_id: "$user_id",
@@ -73,8 +74,19 @@ const groupings = {
 			team: "$team"
 		}
 	},
+	"teamResponseType": {
+		key: "team",
+		group: {in: 'player_last_name', out: 'playerLastName'},
+		value: {
+			correct_response_name: "$correct_response_name",
+			player_first_name: "$player_first_name",
+			player_last_name: "$player_last_name",
+			team: "$team"
+		}
+	},
 	"singleUserPitcherResponseLocation": {
 		key: "user_id",
+		group: {in: 'pitcher_name', out: 'name'},
 		value: {
 			pitcher_name: "$pitcher_name",
 			user_id: "$user_id",
@@ -86,6 +98,7 @@ const groupings = {
 	},
 	"teamPitcherResponseType": {
 		key: "team",
+		group: {in: 'pitcher_name', out: 'name'},
 		value: {
 			pitcher_name: "$pitcher_name",
 			team: "$team",
@@ -94,6 +107,7 @@ const groupings = {
 	},
 	"teamPitcherResponseLocation": {
 		key: "team",
+		group: {in: 'pitcher_name', out: 'name'},
 		value: {
 			pitcher_name: "$pitcher_name",
 			team: "$team",
@@ -102,6 +116,7 @@ const groupings = {
 	},
 	"globalPitcherResponseType": {
 		key: false,
+		group: {in: 'pitcher_name', out: 'name'},
 		value: {
 			pitcher_name: "$pitcher_name",
 			correct_response_name: "$correct_response_name"
@@ -109,6 +124,7 @@ const groupings = {
 	},
 	"globalPitcherResponseLocation": {
 		key: false,
+		group: {in: 'pitcher_name', out: 'name'},
 		value: {
 			pitcher_name: "$pitcher_name",
 			correct_response_name: "$correct_response_location_name"
@@ -159,6 +175,7 @@ class Task extends MongoRmqApiWorker {
 			}
 
 			data.filters['time_answered'] = {$ne:null};
+			data.filters['pitcher_name'] = {$ne:null};
 
 			if (data.filters.minDate) {
 				Object.assign(data.filters['time_answered'], {$gte:new Date(data.filters.minDate)});
@@ -182,7 +199,9 @@ class Task extends MongoRmqApiWorker {
 			ch.ack(msg);
 
 			let keys = groupDataByKeys(rows);
-			return {rows: groupDataByName(rows, keys, groupings[data.rollUpType].key), keys: keys};
+			const key = groupings[data.rollUpType].key;
+			const group = groupings[data.rollUpType].group;
+			return {rows: groupData(rows, keys, key,{in: group.in, out: group.out}), keys: keys};
 		} catch (ex) {
 			this.logError(data, msg, ex);
 			ch.ack(msg);
