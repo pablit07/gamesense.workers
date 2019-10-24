@@ -40,18 +40,28 @@ class Task extends Worker {
             ch.ack(msg);
 
         } else {
-            console.log(`********* Warn: ids not available (yet?) for ${msgContent.id_submission}, sleeping for 1 and retrying`);
-            sleep.msleep(1);
-            let headers = msg.properties.headers;
-            headers.retries = headers.retries || 0;
-            headers.retries++;
-            if (exchange !== 'error') {
-                headers.routing_key = headers.routing_key.replace('error.', '');
-                msg.fields.routingKey = msg.fields.routingKey.replace('error.', '');
+            if (headers.retries === 5) {
+                const reprocessWorker = new ReprocessWorker(msgContent.id_submission);
+                reprocessWorker.runOnce();
+                headers.retries++;
+                this.publishDelayed(msg, ch, headers, msgContent, 'error');
+
+                sleep.msleep(1);
+            } else {
+                console.log(`********* Warn: ids not available (yet?) for ${msgContent.id_submission}, sleeping for 1 and retrying`);
+                sleep.msleep(1);
+                let headers = msg.properties.headers;
+                headers.retries = headers.retries || 0;
+                headers.retries++;
+                let exchange = headers.service;
+                if (exchange !== 'error') {
+                    headers.routing_key = headers.routing_key.replace('error.', '');
+                    msg.fields.routingKey = msg.fields.routingKey.replace('error.', '');
+                }
+                headers.routing_key = headers.routing_key.replace('.no_rows', '');
+                msg.fields.routingKey = msg.fields.routingKey.replace('.no_rows', '');
+                this.publishDelayed(msg, ch, headers, msgContent, 'usage');
             }
-            headers.routing_key = headers.routing_key.replace('.no_rows', '');
-            msg.fields.routingKey = msg.fields.routingKey.replace('.no_rows', '');
-            this.publishDelayed(msg, ch, headers, msgContent, 'usage');
         }
     }
 
