@@ -52,17 +52,15 @@ class Task extends MongoRmqWorker {
 
             if (existingStreak) {
                 // if it does, update the end date and add a day to counter
-                existingStreak.days += 1;
-                existingStreak.responses += 1;
-                existingStreak.endDate = result.endDate;
-                existingStreak.processed_worker = result.processed_worker;
-                existingStreak.id_worker = result.id_worker;
-                delete existingStreak._id;
+                result = existingStreak;
+                result.days += 1;
+                result.responses += 1;
+                delete result._id;
                 await db.collection(c).updateOne({
                     startDate: result.startDate,
                     user_id: result.user_id,
                     app: result.app
-                }, {$set: existingStreak});
+                }, {$set: result});
             } else {
                 // also check if theres one for just yesterday
                 existingStreak = await db.collection(c).findOne({
@@ -72,46 +70,42 @@ class Task extends MongoRmqWorker {
                     app: result.app
                 });
                 if (existingStreak) {
-                    existingStreak.responses += 1;
-                    existingStreak.processed_worker = result.processed_worker;
-                    existingStreak.id_worker = result.id_worker;
-                    delete existingStreak._id;
+                    result = existingStreak;
+                    result.responses += 1;
+                    result.days += 1;
+                    delete result._id;
                     await db.collection(c).updateOne({
                         startDate: result.startDate,
                         user_id: result.user_id,
                         app: result.app
-                    }, {$set: existingStreak});
+                    }, {$set: result});
                 } else {
                     // Now, look at only today
 
-                    result.startDate = result.endDate;
-                    result.startDate_raw = result.endDate_raw;
-
                     let sameDayStreak = await db.collection(c).findOne({
-                        startDate: result.startDate,
+                        startDate: result.endDate,
                         endDate: result.endDate,
                         user_id: result.user_id,
                         app: result.app
                     });
                     if (sameDayStreak) {
-                        sameDayStreak.responses += 1;
-                        delete sameDayStreak._id;
+                        result = sameDayStreak;
+                        result.responses += 1;
+                        delete result._id;
                         await db.collection(c).updateOne({
                             startDate: result.startDate,
                             user_id: result.user_id,
                             app: result.app
-                        }, {$set: sameDayStreak});
+                        }, {$set: result});
                     } else {
-                        existingStreak = result;
-                        existingStreak.days = 1;
-                        existingStreak.responses = 1;
-                        existingStreak.responses = 1;
+                        result.days = 1;
+                        result.responses = 1;
                         await db.collection(c).findOneAndUpdate({
                             startDate: result.startDate,
                             endDate: result.endDate,
                             user_id: result.user_id,
                             app: result.app
-                        }, {$set: existingStreak}, {upsert: true});
+                        }, {$set: result}, {upsert: true});
                     }
 
                 }
