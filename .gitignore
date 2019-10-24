@@ -3,3 +3,6 @@ package-lock.json
 broker/
 mongo/
 .idea
+.DS_Store
+gamesense.workers.sublime-workspace
+gamesense.workers.sublime-project
