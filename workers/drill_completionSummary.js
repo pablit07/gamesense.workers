@@ -1,6 +1,6 @@
 const MongoRmqApiWorker = require("../lib/MongoRmqApiWorker");
 const schemas = require("../schemas");
-const DataRepository = require("./data/drill_usageDetail");
+const DataRepository = require("./data/drill_completions");
 const moment = require('moment');
 
 
@@ -83,7 +83,12 @@ class Task extends MongoRmqApiWorker {
 			data.filters['time_answered'] = {$ne:null};
 			data.filters['drill_date_raw'] = {$ne:null};
 			if (!data.authToken.admin) {
-				data.filters.user_id = data.filters.user_id || data.authToken.id;
+				if (!data.filters.user_id && user.team) {
+					// team user allowed to see team
+					data.filters.team = user.team;
+				} else {
+					data.filters.user_id = data.filters.user_id || data.authToken.id;
+				}
 				data.filters.app = data.filters.app || data.authToken.app;
 			}
 
@@ -101,13 +106,13 @@ class Task extends MongoRmqApiWorker {
 			if (Array.isArray(data.rollUpType)) {
 				await data.rollUpType.forEach(async rut => {
 					data.groupings = groupings[rut];
-					rows[rut] = await DataRepository.drill_usageDetail(data, db, null, getApplyDataFormat(rut));
+					rows[rut] = await DataRepository.drill_completionDetail(data, db, null, getApplyDataFormat(rut));
 				});
 			} else {
 				let rut = data.rollUpType || "monthly";
 				data.groupings = groupings[rut];
 				if (data.authToken.admin) delete data.groupings['user_id'];
-				rows = await DataRepository.drill_usageDetail(data, db, null, getApplyDataFormat(rut));
+				rows = await DataRepository.drill_completionDetail(data, db, null, getApplyDataFormat(rut));
 
 			}
 

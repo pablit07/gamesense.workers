@@ -1,7 +1,7 @@
 const MongoRmqApiWorker = require("../lib/MongoRmqApiWorker");
 const schemas = require("../schemas");
 const moment = require('moment');
-const DataRepository = require("./data/drill_completionSummary");
+const DataRepository = require("./data/drill_completions");
 
 
 const c = "drill_calc";
@@ -28,7 +28,7 @@ class Task extends MongoRmqApiWorker {
 				data.filters.user_id = data.authToken.id;
 			}
 
-			let rows = await DataRepository.drill_usageSummary(data, db);
+			let rows = await DataRepository.drill_completionSummary(data, db);
 
 			//console.log(` [x] Wrote ${JSON.stringify(rows)} to ${this.DbName + "." + c}`);
 
