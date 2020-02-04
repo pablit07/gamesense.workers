@@ -103,6 +103,9 @@ class Task extends MongoRmqWorker {
         occlusion_plus_5_location_score: 1,
         occlusion_plus_2_location_score: 1,
         occlusion_none_location_score: 1,
+        first_glance_location_score: 1,
+        first_glance_type_score: 1,
+        first_glance_total_score: 1,
         prs: 1
       };
 
@@ -119,10 +122,13 @@ class Task extends MongoRmqWorker {
 
       for (let answerType of answerTypes) {
 
+        let answerTypeFirstGlance = answerType === "completely_correct" ? "total" : answerType;
+
         let maps = {
           plus_5: rows.map(x=>x["occlusion_plus_5_"+answerType+"_score"]),
           plus_2: rows.map(x=>x["occlusion_plus_2_"+answerType+"_score"]),
-          none: rows.map(x=>x["occlusion_none_"+answerType+"_score"])
+          none: rows.map(x=>x["occlusion_none_"+answerType+"_score"]),
+          first_glance: rows.map(x=>x["first_glance_"+answerTypeFirstGlance+"_score"]),
         };
 
         for (let scoreType of ["plus_5", "plus_2", "none"]) {
@@ -135,6 +141,11 @@ class Task extends MongoRmqWorker {
             setQuartile(row, quarts, `${scoreType}_${answerType}`);
           });
         }
+
+        let firstGlanceQuarts = jStat.quartiles(maps.first_glance);
+        result[`first_glance_${answerTypeFirstGlance}_score_q1`] = firstGlanceQuarts[0];
+        result[`first_glance_${answerTypeFirstGlance}_score_median`] = firstGlanceQuarts[1];
+        result[`first_glance_${answerTypeFirstGlance}_score_q3`] = firstGlanceQuarts[2];
       }
 
       let quarts = jStat.quartiles(rows.map(x=>x.prs));
