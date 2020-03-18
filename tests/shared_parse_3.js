@@ -21,7 +21,8 @@ let Consumer = {},
 	Amqp = {},
 	config = {
 		database: { name: '', connectionString: '' },
-		messageBroker: { connectionString: '' }
+		messageBroker: { connectionString: '' },
+		rollbar: {token: ''}
 	},
 	db = {
 		collection: () => {
