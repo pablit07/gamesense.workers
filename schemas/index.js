@@ -45,6 +45,7 @@ module.exports.test_calcSummary = {
             "activity_id": {
                 "anyOf": [
                     {"type": "number"},
+                    {"type": "string"},
                     {"type": "null"}
                 ]
             }

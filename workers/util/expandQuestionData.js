@@ -1,5 +1,5 @@
 var crypto = require("crypto");
-var moment = require("moment");
+var moment = require("moment-timezone");
 
 function toTitleCase(str) {
     return str.replace(
@@ -17,11 +17,11 @@ async function expandQuestionData(data, result, db) {
 // time
 
     if (data.timestamp) {
-        result.time_answered_formatted = moment(data.timestamp).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
+        result.time_answered_formatted = moment(data.timestamp).tz('America/Chicago').format('MMMM Do YYYY, h:mm:ss a');
         result.time_answered = new Date(moment(data.timestamp).format());
     }
     result.time_video_started = new Date(moment(data.timestamp).subtract(data.spent_time, 'seconds').format());
-    result.time_video_started_formatted = moment(result.time_video_started).utcOffset(-6).format('MMMM Do YYYY, h:mm:ss a');
+    result.time_video_started_formatted = moment(result.time_video_started).tz('America/Chicago').format('MMMM Do YYYY, h:mm:ss a');
     result.time_spent = data.spent_time;
     result.drill_date = result.time_video_started_formatted.split(",")[0];
     result.drill_date_raw = moment(result.drill_date, "MMMM Do YYYY").toDate();

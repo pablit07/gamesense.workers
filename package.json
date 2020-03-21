@@ -20,6 +20,7 @@
     "jsonschema": "^1.2.4",
     "memcached-elasticache": "^1.1.1",
     "moment": "^2.22.1",
+    "moment-timezone": "^0.5.28",
     "mongodb": "^3.0.7",
     "pm2": "^2.10.3",
     "rollbar": "^2.5.5",
