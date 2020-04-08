@@ -10,7 +10,11 @@ function snakeToCamel(s){
 }
 
 const keyPrefix = 'pitchType_';
-const groupData = (data, keys, rollupField = false, groupField = {in:'pitcher_name',out:'name'}, secondaryGroupField = false) => data.reduce((previousValue, currentValue, index) => {
+const groupData = (data,
+				   keys,
+				   rollupField = false,
+				   groupField = {in:'pitcher_name',out:'name'},
+				   secondaryGroupField = false) => data.reduce((previousValue, currentValue, index) => {
 	let returnValue = previousValue;
 
 	if (currentValue.correct_response_name) {

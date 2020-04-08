@@ -12,13 +12,19 @@ module.exports.test_calcSummary = {
                     {"type": "null"}
                 ]
             },
-            "player_first_name": {
+            "first_name": {
                 "anyOf": [
                     {"type": "string"},
                     {"type": "null"}
                 ]
             },
-            "player_last_name": {
+            "last_name": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
+            "display_name": {
                 "anyOf": [
                     {"type": "string"},
                     {"type": "null"}
