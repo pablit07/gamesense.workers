@@ -25,6 +25,11 @@ OOP framework for building RabbitMQ-based Node apps.
 
 ## Installing
     sudo npm install
+    
+## Testing Workers
+    # simply run the test script for each worker (some have more than one)
+    node tests/drill_calculate.js
+    
 
 ## Start app
     nohup gulp &
