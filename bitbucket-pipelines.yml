@@ -10,7 +10,15 @@ pipelines:
     - step:
         caches:
           - node
-        script: # Modify the commands below to build your repository.
+        name: Build
+        script:
+          - zip -r ./gamesense_workers.zip *
+        artifacts:
+          - gamesense_workers.zip
+    - step:
+        caches:
+          - node
+        script:
           - pipe: atlassian/aws-code-deploy:0.5.2
             variables:
               AWS_DEFAULT_REGION: 'us-east-1'
@@ -18,3 +26,4 @@ pipelines:
               AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
               COMMAND: 'upload'
               APPLICATION_NAME: 'gamesense_workers'
+              ZIP_FILE: 'gamesense_workers.zip'
