@@ -26,5 +26,5 @@ pipelines:
               AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
               COMMAND: 'upload'
               APPLICATION_NAME: 'gamesense.workers'
-              VERSION_LABEL: ''
+              VERSION_LABEL: 'gamesense.workers'
               ZIP_FILE: 'gamesense_workers.zip'
