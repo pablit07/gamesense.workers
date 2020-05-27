@@ -316,6 +316,9 @@ module.exports.user = {
         },
         "team": {
             "type": "string"
+        },
+        "organization": {
+            "type": "string"
         }
     }
 };
@@ -407,7 +410,7 @@ module.exports.singlePlayer = {
 }
 
 module.exports.test_export = {
-    
+
 }
 
 module.exports.drill_usageDetail = {
