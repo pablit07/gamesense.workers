@@ -3,13 +3,28 @@
 # Only use spaces to indent your .yml configuration.
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
-image: node:10.15.3
+image: atlassian/default-image:2
 
 pipelines:
   default:
     - step:
         caches:
           - node
-        script: # Modify the commands below to build your repository.
-          - npm install
-          - npm test
+        name: Build
+        script:
+          - zip -r ./gamesense_workers.zip *
+        artifacts:
+          - gamesense_workers.zip
+    - step:
+        caches:
+          - node
+        script:
+          - pipe: atlassian/aws-code-deploy:0.5.2
+            variables:
+              AWS_DEFAULT_REGION: 'us-east-1'
+              AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+              AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+              COMMAND: 'upload'
+              APPLICATION_NAME: 'gamesense.workers'
+              VERSION_LABEL: 'gamesense.workers'
+              ZIP_FILE: 'gamesense_workers.zip'
