@@ -85,7 +85,8 @@ class Task extends MongoRmqApiWorker {
 			if (!data.authToken.admin) {
 				if (!data.filters.user_id && user.team) {
 					// team user allowed to see team
-					data.filters.team = user.team;
+					let users = await db.collection('users').distinct('id', {team: user.team});
+					data.filters.user_id = {$in: users};
 				} else {
 					data.filters.user_id = data.filters.user_id || data.authToken.id;
 				}
