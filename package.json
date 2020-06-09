@@ -23,9 +23,10 @@
     "moment-timezone": "^0.5.28",
     "mongodb": "^3.0.7",
     "pm2": "^2.10.3",
+    "pryjs": "^1.0.3",
     "rollbar": "^2.5.5",
     "s3-upload-stream": "^1.0.7",
-    "sleep": "^5.2.3",
+    "sleep": "6.2.0",
     "uuid": "^3.2.1",
     "xlsx": "^0.12.10"
   }
