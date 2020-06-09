@@ -554,7 +554,18 @@ module.exports.drill_completionSummary = {
                     {"type": "number"},
                     {"type": "null"}
                 ]
-            }, "date": {
+            },  "player_first_name": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },  "player_last_name": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"}
+                ]
+            },
+                "date": {
                 "anyOf": [
                     {"type": "date"},
                     {"type": "null"}
