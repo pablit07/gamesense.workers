@@ -16,13 +16,14 @@ const fixtures = new Fixtures({
 
 	await mongoUnit.start()
 	const connectionUrl = mongoUnit.getUrl()
-
+  let client = await MongoClient.connect(connectionUrl);
+  let db = await client.db('test')
 
 	await fixtures.connect(connectionUrl)
 	await fixtures.unload()
   await fixtures.load()
 	await fixtures.disconnect()
-	let client = await MongoClient.connect(connectionUrl);
+
 
 	let Consumer = {},
 		Publisher = {},
@@ -42,17 +43,22 @@ const fixtures = new Fixtures({
 		ch = {
 			ack: () => {}
 		}
-		let db = await client.db('prod')
-	  let count = await db.collection('drilllll_comp').count({})
-	eval(pry.it)
-	let worker = new Worker(Consumer, Publisher, Amqp, config);
-	var doIt = async function() {
-		var response = await worker.myTask(data, msg, conn, ch, db);
-		console.log(response)
-		// console.log(validate(worker.getSchema(), response).errors === 0);
-	};
 
-	doIt();
+	let count = await db.collection('drill_comp').countDocuments({})
+	let worker = await new Worker(Consumer, Publisher, Amqp, config);
+	// var doIt = async function() {
+  //
+	// 	var response = await worker.myTask(data, msg, conn, ch, db);
+	// 	console.log("helloo" response)
+	// 	// console.log(validate(worker.getSchema(), response).errors === 0);
+	// };
+  //
+	// doIt();
 
-	// return await mongoUnit.stop()
+  let response = await worker.myTask(data, msg, conn, ch, db);
+  console.log("helloo" + response)
+    // console.log(validate(worker.getSchema(), response).errors === 0);
+
+
+	return await mongoUnit.stop()
 })()
