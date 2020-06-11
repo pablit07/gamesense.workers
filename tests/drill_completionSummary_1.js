@@ -1,6 +1,6 @@
 var validate = require('jsonschema').validate;
 var Worker = require('../workers/drill_completionSummary');
-
+var pry = require('pryjs')
 
 let rows = [ { _id: { user_id: 2, month: 4, year: 2020 }, count: 21 },
 	{ _id: { user_id: 3, month: 4, year: 2020 }, count: 7 },
@@ -20,6 +20,7 @@ let cachedRows = [ { _id: { user_id: 2, month: 4, year: 2020 }, count: 21 },
 	{ _id: { user_id: 12061, month: 4, year: 2020 }, count: 2 },
 	{ _id: { user_id: 16040, month: 4, year: 2020 }, count: 2 },
 	{ _id: { user_id: 23449, month: 5, year: 2020 }, count: 2 } ];
+
 
 let Consumer = {},
 	Publisher = {},
@@ -74,7 +75,7 @@ let Consumer = {},
 	}
 
 let worker = new Worker(Consumer, Publisher, Amqp, config);
-
+eval(pry.it)
 var doIt = async function() {
 	var response = await worker.myTask(data, msg, conn, ch, db);
 	console.log(response)
@@ -82,5 +83,3 @@ var doIt = async function() {
 };
 
 doIt();
-
-
