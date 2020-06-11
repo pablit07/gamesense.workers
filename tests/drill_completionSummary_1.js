@@ -75,9 +75,10 @@ let Consumer = {},
 	}
 
 let worker = new Worker(Consumer, Publisher, Amqp, config);
-eval(pry.it)
+
 var doIt = async function() {
 	var response = await worker.myTask(data, msg, conn, ch, db);
+	eval(pry.it)
 	console.log(response)
 	// console.log(validate(worker.getSchema(), response).errors === 0);
 };

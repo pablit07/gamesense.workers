@@ -54,11 +54,10 @@ const fixtures = new Fixtures({
 	// };
   //
 	// doIt();
-
+  eval(pry.it)
   let response = await worker.myTask(data, msg, conn, ch, db);
-  console.log("helloo" + response)
+  console.log("response data: " + response)
     // console.log(validate(worker.getSchema(), response).errors === 0);
-
 
 	return await mongoUnit.stop()
 })()
