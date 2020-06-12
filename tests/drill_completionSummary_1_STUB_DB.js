@@ -4,25 +4,26 @@ var Worker = require('../workers/drill_completionSummary');
 var pry = require('pryjs')
 
 const mongoUnit = require('mongo-unit')
+const testData = require('./fixtures/drill_comp.json')
 
-const Fixtures = require('node-mongodb-fixtures');
-const fixtures = new Fixtures({
-  dir:'tests/fixtures/',
-  mute: false, // do not mute the log output
-});
+// const Fixtures = require('node-mongodb-fixtures');
+// const fixtures = new Fixtures({
+//   dir:'tests/fixtures/',
+//   mute: false, // do not mute the log output
+// });
 
 // const testData = require('./fixtures/drill_comp.json')
-( async function() {
+ async function myFunction() {
 
 	await mongoUnit.start()
 	const connectionUrl = mongoUnit.getUrl()
   let client = await MongoClient.connect(connectionUrl);
   let db = await client.db('test')
-
-	await fixtures.connect(connectionUrl)
-	await fixtures.unload()
-  await fixtures.load()
-	await fixtures.disconnect()
+  await mongoUnit.load(testData)
+	// await fixtures.connect(connectionUrl)
+	// await fixtures.unload()
+  // await fixtures.load()
+	// await fixtures.disconnect()
 
 
 	let Consumer = {},
@@ -54,10 +55,13 @@ const fixtures = new Fixtures({
 	// };
   //
 	// doIt();
-  eval(pry.it)
-  let response = await worker.myTask(data, msg, conn, ch, db);
-  console.log("response data: " + response)
-    // console.log(validate(worker.getSchema(), response).errors === 0);
 
-	return await mongoUnit.stop()
-})()
+  let response = await worker.myTask(data, msg, conn, ch, db);
+
+  // console.log("response data: " + response)
+    // console.log(validate(worker.getSchema(), response).errors === 0);
+  await mongoUnit.stop()
+	return console.log("response: " + response)
+}
+
+myFunction();
