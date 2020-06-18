@@ -4,7 +4,7 @@ const moment = require('moment');
 const c = "drill_comp";
 const header = {id_submission:1,team:1,player_first_name:1,player_last_name:1,drill:1,app:1,first_glance_total_score:1,time_answered_formatted:1,device:1};
 const headerKeys = Object.keys(header);
-
+var pry = require('pryjs')
 
 function applyDataFormat(rows) {
 	return rows.map(r => {
@@ -136,7 +136,14 @@ async function drill_completionDetail(data, db, modifyHeader, applyDataFormat=x=
 		// }
 
 	} else {
-		let cursor = db.collection(c).aggregate([
+
+		// testing what can be called from test mongo database
+		let test_1 = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app})
+		let test_2 = await db.collection(c).findOne({id: "e4599ab3-8e7d-49df-88e4-d63a47856d3c"})
+		let test_3 = await db.collection(c).aggregate([{"$group": {"count": {"$sum": 1}}}], null)
+
+
+		let cursor = await db.collection(c).aggregate([
 			{"$match": data.filters },
 			{"$group" : {
 					"_id": {
@@ -146,7 +153,8 @@ async function drill_completionDetail(data, db, modifyHeader, applyDataFormat=x=
 					"count": { "$sum": 1 }
 				} },
 			{"$sort": {_id: 1}}
-			], { allowDiskUse: true });
+			],
+			 {allowDiskUse: true }, null);
 
 		if (data.paginate) {
 			cursor.limit(100);

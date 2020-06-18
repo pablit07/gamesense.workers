@@ -29,8 +29,6 @@ const groupings = {
 		user_id: "$user_id",
 		month: {$month: "$drill_date_raw"},
 		year: {$year: "$drill_date_raw"},
-		player_last_name: "$player_last_name",
-		player_first_name: "$player_first_name"
 	},
 	"weekly": {
 		user_id: "$user_id",
@@ -82,7 +80,7 @@ class Task extends MongoRmqApiWorker {
 
 			data.filters = data.filters || {};
 			let user = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app});
-			eval(pry.it)
+			let test = "chicken"
 			if (!user) {
 				ch.ack(msg);
 				return [];
