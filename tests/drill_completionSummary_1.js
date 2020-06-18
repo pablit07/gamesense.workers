@@ -1,6 +1,6 @@
 var validate = require('jsonschema').validate;
 var Worker = require('../workers/drill_completionSummary');
-
+var pry = require('pryjs')
 
 let rows = [ { _id: { user_id: 2, month: 4, year: 2020,  play_first_name: "First", player_last_name: "Last"}, count: 21 },
 	{ _id: { user_id: 3, month: 4, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 7 },
@@ -20,6 +20,7 @@ let cachedRows = [ { _id: { user_id: 2, month: 4, year: 2020, player_first_name:
 	{ _id: { user_id: 12061, month: 4, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 2 },
 	{ _id: { user_id: 16040, month: 4, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 2 },
 	{ _id: { user_id: 23449, month: 5, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 2 } ];
+
 
 let Consumer = {},
 	Publisher = {},

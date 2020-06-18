@@ -2,6 +2,7 @@ const MongoRmqApiWorker = require("../lib/MongoRmqApiWorker");
 const schemas = require("../schemas");
 const DataRepository = require("./data/drill_completions");
 const moment = require('moment');
+var pry = require('pryjs')
 
 
 const applyDataFormat = rows => {
@@ -81,6 +82,7 @@ class Task extends MongoRmqApiWorker {
 
 			data.filters = data.filters || {};
 			let user = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app});
+			eval(pry.it)
 			if (!user) {
 				ch.ack(msg);
 				return [];
