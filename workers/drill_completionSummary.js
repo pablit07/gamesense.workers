@@ -21,22 +21,30 @@ const groupings = {
 	"yearly": {
 		user_id: "$user_id",
 		year: {$year: "$drill_date_raw"},
+		player_last_name: "$player_last_name",
+		player_first_name: "$player_first_name",
 	},
 	"monthly": {
 		user_id: "$user_id",
 		month: {$month: "$drill_date_raw"},
 		year: {$year: "$drill_date_raw"},
+		player_last_name: "$player_last_name",
+		player_first_name: "$player_first_name"
 	},
 	"weekly": {
 		user_id: "$user_id",
 		week: {$week: "$drill_date_raw"},
 		year: {$year: "$drill_date_raw"},
+		player_last_name: "$player_last_name",
+		player_first_name: "$player_first_name"
 	},
 	"daily": {
 		user_id: "$user_id",
 		day: {$day: "$drill_date_raw"},
 		month: {$month: "$drill_date_raw"},
 		year: {$year: "$drill_date_raw"},
+		player_last_name: "$player_last_name",
+		player_first_name: "$player_first_name"
 	}
 };
 
