@@ -2,32 +2,32 @@ var validate = require('jsonschema').validate;
 var Worker = require('../workers/drill_completionSummary');
 
 
-let rows = [ { _id: { user_id: 150, month: 1, year: 2019 }, count: 24 },
-	{ _id: { user_id: 150, month: 1, year: 2020 }, count: 13 },
-	{ _id: { user_id: 150, month: 2, year: 2019 }, count: 4 },
-	{ _id: { user_id: 150, month: 2, year: 2020 }, count: 15 },
-	{ _id: { user_id: 150, month: 3, year: 2019 }, count: 42 },
-	{ _id: { user_id: 150, month: 3, year: 2020 }, count: 4 },
-	{ _id: { user_id: 150, month: 4, year: 2019 }, count: 43 },
-	{ _id: { user_id: 150, month: 5, year: 2019 }, count: 159 },
-	{ _id: { user_id: 150, month: 6, year: 2019 }, count: 42 },
-	{ _id: { user_id: 150, month: 7, year: 2019 }, count: 1 },
-	{ _id: { user_id: 150, month: 8, year: 2019 }, count: 1 },
-	{ _id: { user_id: 150, month: 11, year: 2019 }, count: 5 },
-	{ _id: { user_id: 150, month: 12, year: 2019 }, count: 1 } ]
-let cachedRows = [ { _id: { user_id: 150, month: 1, year: 2019 }, count: 24 },
-	{ _id: { user_id: 150, month: 1, year: 2020 }, count: 13 },
-	{ _id: { user_id: 150, month: 2, year: 2019 }, count: 4 },
-	{ _id: { user_id: 150, month: 2, year: 2020 }, count: 15 },
-	{ _id: { user_id: 150, month: 3, year: 2019 }, count: 42 },
-	{ _id: { user_id: 150, month: 3, year: 2020 }, count: 4 },
-	{ _id: { user_id: 150, month: 4, year: 2019 }, count: 43 },
-	{ _id: { user_id: 150, month: 5, year: 2019 }, count: 159 },
-	{ _id: { user_id: 150, month: 6, year: 2019 }, count: 42 },
-	{ _id: { user_id: 150, month: 7, year: 2019 }, count: 1 },
-	{ _id: { user_id: 150, month: 8, year: 2019 }, count: 1 },
-	{ _id: { user_id: 150, month: 11, year: 2019 }, count: 5 },
-	{ _id: { user_id: 150, month: 12, year: 2019 }, count: 1 } ]
+let rows = [ { _id: { user_id: 150, month: 1, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 24 },
+	{ _id: { user_id: 150, month: 1, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 13 },
+	{ _id: { user_id: 150, month: 2, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 4 },
+	{ _id: { user_id: 150, month: 2, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 15 },
+	{ _id: { user_id: 150, month: 3, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 42 },
+	{ _id: { user_id: 150, month: 3, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 4 },
+	{ _id: { user_id: 150, month: 4, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 43 },
+	{ _id: { user_id: 150, month: 5, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 159 },
+	{ _id: { user_id: 150, month: 6, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 42 },
+	{ _id: { user_id: 150, month: 7, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 1 },
+	{ _id: { user_id: 150, month: 8, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 1 },
+	{ _id: { user_id: 150, month: 11, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 5 },
+	{ _id: { user_id: 150, month: 12, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 1 } ]
+let cachedRows = [ { _id: { user_id: 150, month: 1, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 24 },
+	{ _id: { user_id: 150, month: 1, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 13 },
+	{ _id: { user_id: 150, month: 2, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 4 },
+	{ _id: { user_id: 150, month: 2, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 15 },
+	{ _id: { user_id: 150, month: 3, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 42 },
+	{ _id: { user_id: 150, month: 3, year: 2020, player_first_name: "First", player_last_name: "Last" }, count: 4 },
+	{ _id: { user_id: 150, month: 4, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 43 },
+	{ _id: { user_id: 150, month: 5, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 159 },
+	{ _id: { user_id: 150, month: 6, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 42 },
+	{ _id: { user_id: 150, month: 7, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 1 },
+	{ _id: { user_id: 150, month: 8, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 1 },
+	{ _id: { user_id: 150, month: 11, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 5 },
+	{ _id: { user_id: 150, month: 12, year: 2019, player_first_name: "First", player_last_name: "Last" }, count: 1 } ]
 
 let Consumer = {},
 	Publisher = {},
@@ -90,5 +90,3 @@ var doIt = async function() {
 };
 
 doIt();
-
-

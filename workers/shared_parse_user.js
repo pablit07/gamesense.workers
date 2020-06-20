@@ -1,3 +1,4 @@
+let pry = require('pryjs')
 var moment = require('moment');
 var schemas = require('../schemas');
 var MongoRmqWorker = require('../lib/MongoRmqWorker');
@@ -18,7 +19,6 @@ class Task extends MongoRmqWorker {
     and inserts into the database
   */
   async myTask(data, msg, conn, ch, db) {
-
 
     if (!data.app) {
       ch.ack(msg);
