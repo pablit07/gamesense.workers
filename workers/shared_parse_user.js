@@ -5,7 +5,6 @@ var MongoRmqWorker = require('../lib/MongoRmqWorker');
 var flatten = require('flat');
 
 
-
 const c = 'users';
 
 class Task extends MongoRmqWorker {
@@ -54,7 +53,7 @@ class Task extends MongoRmqWorker {
         Object.assign(result, {timestamp:moment().toDate()}, flatten(cookie, {delimiter: '__'}));
         await db.collection(c + '_registration').findOneAndUpdate(query, {$set: result}, {upsert: true});
       }
-    
+
       console.log(` [x] Wrote ${JSON.stringify(result)} to ${this.DbName + '.' + c}`);
 
       ch.ack(msg);
