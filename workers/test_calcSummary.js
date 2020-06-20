@@ -44,8 +44,6 @@ class Task extends MongoRmqApiWorker {
 				}
 			}
 
-			console.info(query);
-
 			let rows = await db.collection(c)
 				.aggregate([
 					{$match: query},
