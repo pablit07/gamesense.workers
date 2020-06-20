@@ -1,6 +1,6 @@
 {
   "users": [{
-    "id": 1,
+    "id": 150,
     "team": "test_test",
     "app": "BB"
   }],
@@ -20,7 +20,7 @@
     "time_video_started_formatted": "May 16th 2019, 3:04:03 am",
     "time_spent": null,
     "drill_date": "May 16th 2019",
-    "drill_date_raw": "2019-05-16T00:00:00Z",
+    "drill_date_raw": {"$date":"2019-05-16T00:00:00Z"},
     "device": "Web Browser",
     "os": "Unknown",
     "user_id": 150,
@@ -54,7 +54,7 @@
     "time_video_started_formatted": "May 16th 2019, 3:04:03 am",
     "time_spent": null,
     "drill_date": "May 16th 2019",
-    "drill_date_raw": "2019-05-16T00:00:00Z",
+    "drill_date_raw": {"$date": "2019-05-16T00:00:00Z"},
     "device": "Web Browser",
     "os": "Unknown",
     "user_id": 150,

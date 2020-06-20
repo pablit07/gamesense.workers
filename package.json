@@ -32,6 +32,7 @@
     "xlsx": "^0.12.10"
   },
   "devDependencies": {
+    "ejson": "^2.2.0",
     "mongo-unit": "^2.0.1"
   }
 }

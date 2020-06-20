@@ -5,6 +5,7 @@ var pry = require('pryjs')
 
 const mongoUnit = require('mongo-unit')
 const testData = require('./fixtures/drill_comp.json')
+const EJSON = require('ejson')
 
 // const Fixtures = require('node-mongodb-fixtures');
 // const fixtures = new Fixtures({
@@ -19,7 +20,7 @@ const testData = require('./fixtures/drill_comp.json')
 	const connectionUrl = mongoUnit.getUrl()
   let client = await MongoClient.connect(connectionUrl);
   let db = await client.db('test')
-  await mongoUnit.load(testData)
+  await mongoUnit.load(EJSON.fromJSONValue(testData))
 	// await fixtures.connect(connectionUrl)
 	// await fixtures.unload()
   // await fixtures.load()
@@ -36,7 +37,7 @@ const testData = require('./fixtures/drill_comp.json')
 		},
 		data = {
 			filters: {},
-			authToken: {id:1,app:'BB'},
+			authToken: {id:150,app:'BB'},
 			rollUpType: 'monthly'
 		},
 		msg = {},
@@ -45,7 +46,7 @@ const testData = require('./fixtures/drill_comp.json')
 			ack: () => {}
 		}
 
-	let count = await db.collection('drill_comp').countDocuments({})
+	let count = await db.collection('drill_comp').count({})
 	let worker = await new Worker(Consumer, Publisher, Amqp, config);
 	// var doIt = async function() {
   //
@@ -58,10 +59,10 @@ const testData = require('./fixtures/drill_comp.json')
 
   let response = await worker.myTask(data, msg, conn, ch, db);
 
-  // console.log("response data: " + response)
+
+  console.log("response data: " + JSON.stringify(response))
     // console.log(validate(worker.getSchema(), response).errors === 0);
   await mongoUnit.stop()
-	return console.log("response: " + response)
 }
 
 myFunction();

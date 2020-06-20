@@ -74,7 +74,6 @@ class Task extends MongoRmqApiWorker {
 
 			data.filters = data.filters || {};
 			let user = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app});
-			eval(pry.it)
 			if (!user) {
 				ch.ack(msg);
 				return [];
