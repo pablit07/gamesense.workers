@@ -57,7 +57,6 @@ let Consumer = {},
 	ch = {
 		ack: () => {}
 	}
-console.log(msg)	
 
 let worker = new Worker(Consumer, Publisher, Amqp, config)
 worker.myTask(data, msg, conn, ch, db)

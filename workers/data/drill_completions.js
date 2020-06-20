@@ -136,13 +136,6 @@ async function drill_completionDetail(data, db, modifyHeader, applyDataFormat=x=
 		// }
 
 	} else {
-
-		// testing what can be called from test mongo database
-		let test_1 = await db.collection('users').findOne({id:data.authToken.id, app:data.authToken.app})
-		let test_2 = await db.collection(c).findOne({id: "e4599ab3-8e7d-49df-88e4-d63a47856d3c"})
-		let test_3 = await db.collection(c).aggregate([{"$group": {"count": {"$sum": 1}}}], null)
-
-
 		let cursor = await db.collection(c).aggregate([
 			{"$match": data.filters },
 			{"$group" : {
