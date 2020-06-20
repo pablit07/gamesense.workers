@@ -1,10 +1,8 @@
 const moment = require('moment');
-
-
 const c = "drill_comp";
 const header = {id_submission:1,team:1,player_first_name:1,player_last_name:1,drill:1,app:1,first_glance_total_score:1,time_answered_formatted:1,device:1};
 const headerKeys = Object.keys(header);
-var pry = require('pryjs')
+
 
 function applyDataFormat(rows) {
 	return rows.map(r => {

@@ -2,7 +2,6 @@ const MongoRmqApiWorker = require("../lib/MongoRmqApiWorker");
 const schemas = require("../schemas");
 const DataRepository = require("./data/drill_completions");
 const moment = require('moment');
-var pry = require('pryjs')
 
 
 const applyDataFormat = rows => {

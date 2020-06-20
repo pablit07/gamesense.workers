@@ -3,7 +3,6 @@ const EJSON = require('ejson')
 const mongoUnit = require('mongo-unit')
 let validate = require('jsonschema').validate
 let Worker = require('../workers/drill_completionSummary')
-let pry = require('pryjs')
 let assert = require('assert')
 
 async function testWorkerResponse() {
