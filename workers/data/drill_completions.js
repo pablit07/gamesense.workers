@@ -134,7 +134,7 @@ async function drill_completionDetail(data, db, modifyHeader, applyDataFormat=x=
 		// }
 
 	} else {
-		let cursor = await db.collection(c).aggregate([
+		let cursor = db.collection(c).aggregate([
 			{"$match": data.filters },
 			{"$group" : {
 					"_id": {
