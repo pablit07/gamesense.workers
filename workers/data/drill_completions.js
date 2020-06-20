@@ -145,7 +145,7 @@ async function drill_completionDetail(data, db, modifyHeader, applyDataFormat=x=
 				} },
 			{"$sort": {_id: 1}}
 			],
-			 {allowDiskUse: true }, null);
+			 {allowDiskUse: true });
 
 		if (data.paginate) {
 			cursor.limit(100);
