@@ -28,3 +28,8 @@ pipelines:
               APPLICATION_NAME: 'gamesense.workers'
               VERSION_LABEL: 'gamesense.workers'
               ZIP_FILE: 'gamesense_workers.zip'
+    - step:
+        caches:
+          - node
+        script:
+          - aws deploy create-deployment --application-name gamesense.workers --s3-location bucket="gamesense.workers-codedeploy-deployment",key="gamesense.workers",bundleType=zip --deployment-group-name RMQWorkers_DeployGroup --file-exists-behavior OVERWRITE
