@@ -12,10 +12,11 @@ class App {
 	}
 
 	async init() {
-		for (let q of this.config.queues.filter(q => q.start)) {
+		for (let q of this.config.queues) {
 
 			try {
 				// start worker processes for each queue
+				if (q.start === false) continue;
 
 				let proc = this.getProcess(q.name, q.instances || 1);
 				if (!proc) {
