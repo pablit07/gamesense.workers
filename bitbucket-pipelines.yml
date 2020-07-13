@@ -32,4 +32,14 @@ pipelines:
         caches:
           - node
         script:
-          - aws deploy create-deployment --application-name gamesense.workers --s3-location bucket="gamesense.workers-codedeploy-deployment",key="gamesense.workers",bundleType=zip --deployment-group-name RMQWorkers_DeployGroup --file-exists-behavior OVERWRITE
+          - pipe: atlassian/aws-code-deploy:0.5.2
+            variables:
+              AWS_DEFAULT_REGION: 'us-east-1'
+              AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+              AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+              COMMAND: 'deploy'
+              APPLICATION_NAME: 'gamesense.workers'
+              S3_BUCKET: 'gamesense.workers-codedeploy-deployment'
+              VERSION_LABEL: 'gamesense.workers'
+              DEPLOYMENT_GROUP: 'RMQWorkers_DeployGroup'
+              FILE_EXISTS_BEHAVIOR: 'OVERWRITE'
