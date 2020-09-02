@@ -1,7 +1,5 @@
-var moment = require("moment");
-const uuid = require("uuid/v4");
 const ExportWorker = require("../lib/ExportWorker");
-const spawnSync = require('child_process').spawnSync;
+const exec = require('child_process').exec;
 
 
 class Task extends ExportWorker {
@@ -29,13 +27,21 @@ class Task extends ExportWorker {
 
                 let outputPath = `/tmp/compressed.${workingFile}`;
 
-                let result = spawnSync('ffmpeg', [`-i ${workingPath}`, '-vcodec h264', outputPath]);
+                exec(`ffmpeg -i ${workingPath} -vcodec h264 ${outputPath}`, () => {
 
-                console.log(result);
+                    this.fs.unlinkSync(workingPath);
 
-                this.fs.unlinkSync(workingPath);
+                    var read = fs.createReadStream(outputPath);
 
-                ch.ack(msg);
+                    var upload = this.uploadStream({
+                        "Bucket": data.bucket,
+                        "Key": data.key
+                    });
+
+                    read.pipe(upload);
+
+                    ch.ack(msg);
+                });
             });
 
             // var read = fs.createReadStream(`/tmp/${key}`);
