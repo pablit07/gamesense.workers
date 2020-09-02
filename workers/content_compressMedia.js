@@ -27,21 +27,26 @@ class Task extends ExportWorker {
 
                 let outputPath = `/tmp/compressed.${workingFile}`;
 
-                exec(`ffmpeg -i ${workingPath} -vcodec h264 ${outputPath}`, () => {
+                exec(`ffmpeg -i ${workingPath} -vcodec libx264 -acodec aac -strict -2 ${outputPath}`, (error, stdout, stderr) => {
 
-                    this.fs.unlinkSync(workingPath);
+                    if (error === null) {
 
-                    var read = this.fs.createReadStream(outputPath);
+                        this.fs.unlinkSync(workingPath);
 
-                    var upload = this.uploadStream({
-                        "Bucket": data.bucket,
-                        "Key": data.key
-                    });
+                        const read = this.fs.createReadStream(outputPath);
 
-                    read.pipe(upload);
+                        const upload = this.uploadStream({
+                            "Bucket": data.bucket,
+                            "Key": data.key,
+                            "ACL": "public-read",
+                        });
 
-                    ch.ack(msg);
-                });
+                        read.pipe(upload);
+
+                        ch.ack(msg);
+                    } else {
+                        this.logError(data, msg, error);
+                    }
             });
 
             // var read = fs.createReadStream(`/tmp/${key}`);
