@@ -43,10 +43,15 @@ class Task extends ExportWorker {
 
                         read.pipe(upload);
 
-                        ch.ack(msg);
+                        upload.on('finish', () => {
+                            this.fs.unlinkSync(outputPath);
+                            ch.ack(msg);
+                        });
+
                     } else {
                         this.logError(data, msg, error);
                     }
+                });
             });
 
             // var read = fs.createReadStream(`/tmp/${key}`);
