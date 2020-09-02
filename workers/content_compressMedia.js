@@ -31,7 +31,7 @@ class Task extends ExportWorker {
 
                     this.fs.unlinkSync(workingPath);
 
-                    var read = fs.createReadStream(outputPath);
+                    var read = this.fs.createReadStream(outputPath);
 
                     var upload = this.uploadStream({
                         "Bucket": data.bucket,
