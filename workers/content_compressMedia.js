@@ -25,11 +25,18 @@ class Task extends ExportWorker {
 
             download.pipe(write);
 
-            let outputPath = `/tmp/compressed.${workingFile}`;
+            write.on("finish", () => {
 
-            let result = spawnSync('ffmpeg', [`-i ${workingPath}`, '-vcodec h264', outputPath]);
+                let outputPath = `/tmp/compressed.${workingFile}`;
 
-            this.fs.unlinkSync(workingPath);
+                let result = spawnSync('ffmpeg', [`-i ${workingPath}`, '-vcodec h264', outputPath]);
+
+                console.log(result);
+
+                this.fs.unlinkSync(workingPath);
+
+                ch.ack(msg);
+            });
 
             // var read = fs.createReadStream(`/tmp/${key}`);
             // var upload = this.uploadStream({
@@ -47,7 +54,6 @@ class Task extends ExportWorker {
             //
             // read.pipe(upload);
 
-            ch.ack(msg);
 
         } catch (ex) {
             this.logError(data, msg, ex);
