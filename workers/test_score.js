@@ -6,7 +6,7 @@ var MongoRmqWorker = require("../lib/MongoRmqWorker");
 
 
 
-const locations = {1:"Ball",2:"Strike"};
+const locations = {1:"Ball",2:"Strike",3:"Tee",4:"Body",5:"Wide"};
 const pitchtypes = {1:"Fastball",2:"Cutter",3:"Changeup",4:"Curveball",5:"Slider",106:"Rise",108:"Drop",109:"Screw",110:"Knuckle"};
 
 class Task extends MongoRmqWorker {

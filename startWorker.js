@@ -8,6 +8,11 @@ if (process.argv.length != 3) {
 	throw Error("Invalid Arguments: pass one argument for relative worker path");
 }
 
+/**
+ * This file is a helper script to run a single worker in a managed environment.
+ * It is run once per PM2 process when the app starts from app.js.
+ * It can also be executed on its own from the command line as a way to start a single worker for testing or utility.
+ */
 class App {
 
 	constructor(name, config) {

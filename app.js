@@ -3,6 +3,10 @@ var Process = require("./lib/Process");
 var PM2 = require("pm2");
 
 
+/**
+ * This file is the entry point for the worker app running on PM2.
+ * It starts up all the workers defined in config.js in PM2 processes.
+ */
 class App {
 
 	constructor(config) {

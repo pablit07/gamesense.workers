@@ -13,7 +13,8 @@ class Task extends MongoRmqWorker {
      calc single player scores
   */
   async myTask(msgContent, msg, conn, ch, db) {
-                  try {
+
+      try {
 
                       if (this.isClientRequested(msgContent)) {
                           throw Error("Not authorized for client requests");
@@ -129,9 +130,14 @@ class Task extends MongoRmqWorker {
                           db.collection("test_usage").count(query_none),
                           cursor_none.toArray(),
                           cursor.toArray()]);
-                      if (rows_plus_2.some(r => r.type_score == null || r.location_score == null || r.completely_correct_score == null) ||
-                          rows_plus_5.some(r => r.type_score == null || r.location_score == null || r.completely_correct_score == null) ||
-                          rows_none.some(r => r.type_score == null || r.location_score == null || r.completely_correct_score == null)) {
+
+                      const hasSomeType = rows_plus_2.some(r => r.type_score != null) || rows_plus_5.some(r => r.type_score != null) || rows_none.some(r => r.type_score != null);
+                      const hasSomeLocation = rows_plus_2.some(r => r.location_score != null) || rows_plus_5.some(r => r.location_score != null) || rows_none.some(r => r.location_score != null);
+                      const hasNullScore = r => (r.type_score == null && hasSomeType) || (r.location_score == null && hasSomeLocation) || (r.completely_correct_score == null && hasSomeLocation && hasSomeType);
+
+                      if (rows_plus_2.some(hasNullScore) ||
+                          rows_plus_5.some(hasNullScore) ||
+                          rows_none.some(hasNullScore)) {
 
                           this.publishError(msg, ch, "null_scores");
                           ch.ack(msg);
