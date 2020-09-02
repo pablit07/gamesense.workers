@@ -1,41 +1,38 @@
 var moment = require("moment");
 const uuid = require("uuid/v4");
-const Worker = require("../lib/Worker");
+const ExportWorker = require("../lib/ExportWorker");
 const spawnSync = require('child_process').spawnSync;
-const downloadStream = require('s3-download-stream');
-const fs = require('fs');
 
-// write csvs and upload to s3
 
-class Task extends Worker {
+class Task extends ExportWorker {
 
   /*
-     run a command to compress video file
+     run a command to download then compress video file
   */
-    async myTask(data, msg, conn, ch, db) {
+    async myTask(data, msg, conn, ch) {
 
         try {
 
-            const workingFile = `${this.consumer.uuidForCurrentExecution}.${key}`;
+            const workingFile = `${this.consumer.uuidForCurrentExecution}.${data.key}`;
             const workingPath = `/tmp/${workingFile}`;
 
-            var write = fs.createWriteStream(workingPath);
+            let write = this.fs.createWriteStream(workingPath);
 
-            let download = downloadStream.download({
+            let download = this.downloadStream({
                 "Bucket": data.bucket,
                 "Key": data.key
             });
 
-            write.pipe(download);
+            download.pipe(write);
 
             let outputPath = `/tmp/compressed.${workingFile}`;
 
-            const result = spawnSync('ffmpeg', [`-i ${data.key}`, '-vcodec h264', outputPath]);
+            let result = spawnSync('ffmpeg', [`-i ${workingPath}`, '-vcodec h264', outputPath]);
 
-            fs.unlinkSync(workingPath);
+            this.fs.unlinkSync(workingPath);
 
             // var read = fs.createReadStream(`/tmp/${key}`);
-            // var upload = s3Stream.upload({
+            // var upload = this.uploadStream({
             //   "Bucket": bucket,
             //   "Key": key
             // });
